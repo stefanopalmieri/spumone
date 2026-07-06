@@ -252,6 +252,18 @@ bar {
     }
 }
 
+# Fake bottom border for the bar above: a 1px Spacemacs-purple bar that
+# renders only its background (empty status), drawn directly under the
+# main bar. i3bar has no native border option, so we stack a thin one.
+bar {
+    position top
+    height 1
+    status_command ~/.config/i3/scripts/empty-status.sh
+    colors {
+        background #5d4d7a
+    }
+}
+
 # ============================================================
 # Startup programs
 # ============================================================

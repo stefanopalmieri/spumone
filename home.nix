@@ -332,6 +332,8 @@
   xdg.configFile."i3/scripts/power-menu.sh".source = ./i3/scripts/power-menu.sh;
   xdg.configFile."i3/scripts/cheatsheet.sh".force = true;
   xdg.configFile."i3/scripts/cheatsheet.sh".source = ./i3/scripts/cheatsheet.sh;
+  xdg.configFile."i3/scripts/empty-status.sh".force = true;
+  xdg.configFile."i3/scripts/empty-status.sh".source = ./i3/scripts/empty-status.sh;
 
   # ----------------------------------------------------------------
   # Rofi theme (Spacemacs dark) for drun application picker
