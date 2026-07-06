@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Spacemacs dark theme for Rofi
+   Colors from the Spacemacs theme by Nasser Alshammari
+   https://github.com/nashamri/spacemacs-theme
+   ========================================================================== */
+
+* {
+    /* Theme settings */
+    highlight: bold italic;
+    scrollbar: true;
+
+    /* Spacemacs dark palette */
+    sp-bg1:    #292b2e;   /* main background */
+    sp-bg2:    #212026;   /* alt background */
+    sp-bg4:    #0a0814;   /* near-black */
+    sp-base:   #b2b2b2;   /* default text */
+    sp-base-dim: #686868; /* dim text */
+    sp-fg0:    #e3dedd;   /* bright cursor/bright text */
+    sp-act2:   #5d4d7a;   /* modeline purple (borders) */
+    sp-keyword:#4f97d7;   /* sky blue (selection) */
+    sp-func:   #bc6ec5;   /* purple (active) */
+    sp-type:   #ce537a;   /* pink-red (urgent) */
+    str:       #2d9574;   /* teal */
+
+    /* Theme colors */
+    background:                  @sp-bg1;
+    background-color:            @background;
+    foreground:                  @sp-base;
+    border-color:                @sp-act2;
+    separatorcolor:              @sp-act2;
+    scrollbar-handle:            @sp-act2;
+
+    normal-background:           @background;
+    normal-foreground:           @foreground;
+    alternate-normal-background: @sp-bg2;
+    alternate-normal-foreground: @foreground;
+    selected-normal-background:  @sp-keyword;
+    selected-normal-foreground:  @sp-bg4;
+
+    active-background:           @sp-func;
+    active-foreground:           @sp-bg4;
+    alternate-active-background: @active-background;
+    alternate-active-foreground: @active-foreground;
+    selected-active-background:  @sp-func;
+    selected-active-foreground:  @active-foreground;
+
+    urgent-background:           @sp-type;
+    urgent-foreground:           @sp-bg4;
+    alternate-urgent-background: @urgent-background;
+    alternate-urgent-foreground: @urgent-foreground;
+    selected-urgent-background:  @sp-type;
+    selected-urgent-foreground:  @urgent-foreground;
+}
+
+window {
+    background-color: @background;
+    border:           2;
+    border-color:     @border-color;
+    padding:          2;
+}
+
+mainbox {
+    border:  0;
+    padding: 0;
+}
+
+message {
+    border:       2px 0 0;
+    border-color: @separatorcolor;
+    padding:      1px;
+}
+
+textbox {
+    highlight:  @highlight;
+    text-color: @foreground;
+}
+
+listview {
+    border:       2px solid 0 0;
+    padding:      2px 0 0;
+    border-color: @separatorcolor;
+    spacing:      2px;
+    scrollbar:    @scrollbar;
+}
+
+element {
+    border:  0;
+    padding: 2px;
+}
+
+element.normal.normal {
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
+}
+
+element.normal.urgent {
+    background-color: @urgent-background;
+    text-color:       @urgent-foreground;
+}
+
+element.normal.active {
+    background-color: @active-background;
+    text-color:       @active-foreground;
+}
+
+element.selected.normal {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+element.selected.urgent {
+    background-color: @selected-urgent-background;
+    text-color:       @selected-urgent-foreground;
+}
+
+element.selected.active {
+    background-color: @selected-active-background;
+    text-color:       @selected-active-foreground;
+}
+
+element.alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:       @alternate-normal-foreground;
+}
+
+element.alternate.urgent {
+    background-color: @alternate-urgent-background;
+    text-color:       @alternate-urgent-foreground;
+}
+
+element.alternate.active {
+    background-color: @alternate-active-background;
+    text-color:       @alternate-active-foreground;
+}
+
+scrollbar {
+    width:        4px;
+    border:       0;
+    handle-color: @scrollbar-handle;
+    handle-width: 8px;
+    padding:      0;
+}
+
+mode-switcher {
+    border:       2px 0 0;
+    border-color: @separatorcolor;
+}
+
+inputbar {
+    spacing:    0;
+    text-color: @normal-foreground;
+    padding:    2px;
+    children:   [ prompt, textbox-prompt-sep, entry, case-indicator ];
+}
+
+case-indicator,
+entry,
+prompt,
+button {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+
+button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+textbox-prompt-sep {
+    expand:     false;
+    str:        ":";
+    text-color: @normal-foreground;
+    margin:     0 0.3em 0 0;
+}
+
+element-text, element-icon {
+    background-color: inherit;
+    text-color:       inherit;
+}

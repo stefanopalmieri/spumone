@@ -1,0 +1,299 @@
+# ============================================================
+# i3 config — vim-style bindings
+# ============================================================
+# Mod = Super (Windows key). Use Mod1 for Alt if you prefer.
+set $mod Mod4
+
+# Font for window titles and bar (if not overridden by bar)
+font pango:SauceCodePro Nerd Font 10
+
+# Use Mouse+$mod to drag floating windows
+floating_modifier $mod
+
+# ============================================================
+# Window management
+# ============================================================
+
+# Kill focused window
+bindsym $mod+q kill
+
+# Change focus (vim-style)
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Alternatively, use arrow keys too
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move focused window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Move with arrow keys
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Split orientation
+bindsym $mod+v split toggle
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Layout switching (stacked / tabbed / split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Toggle floating
+bindsym $mod+Shift+space floating toggle
+
+# Focus floating/tiling toggle
+bindsym $mod+space focus mode_toggle
+
+# Focus parent/child container
+bindsym $mod+a focus parent
+bindsym $mod+c focus child
+
+# Sticky window (stays on all workspaces)
+bindsym $mod+Shift+s sticky toggle
+
+# ============================================================
+# Workspaces
+# ============================================================
+# Named workspaces with icons (requires a nerd font or emoji-capable font)
+set $ws1  "1: 󰲌"
+set $ws2  "2: 󰈹"
+set $ws3  "3: 󰆼"
+set $ws4  "4: 󰍩"
+set $ws5  "5: 󰝚"
+set $ws6  "6: 󰆍"
+set $ws7  "7: 󰆧"
+set $ws8  "8: 󰑔"
+set $ws9  "9: 󰎤"
+set $ws10 "10: 󰎙"
+
+# Switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws10
+
+# Move container to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2; workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3; workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4; workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9; workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws10; workspace $ws10
+
+# Cycle workspaces
+bindsym $mod+Tab workspace next
+bindsym $mod+Shift+Tab workspace prev
+
+# Move workspace to another monitor
+bindsym $mod+Ctrl+h move workspace to output left
+bindsym $mod+Ctrl+l move workspace to output right
+
+# ============================================================
+# Resize mode
+# ============================================================
+mode "resize" {
+    bindsym h resize shrink width 5 px or 5 ppt
+    bindsym j resize grow height 5 px or 5 ppt
+    bindsym k resize shrink height 5 px or 5 ppt
+    bindsym l resize grow width 5 px or 5 ppt
+
+    bindsym Left resize shrink width 5 px or 5 ppt
+    bindsym Down resize grow height 5 px or 5 ppt
+    bindsym Up resize shrink height 5 px or 5 ppt
+    bindsym Right resize grow width 5 px or 5 ppt
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# ============================================================
+# Gaps
+# ============================================================
+# Inner gaps = space between adjacent windows
+gaps inner 4
+
+# Outer gaps = space between windows and screen edge
+gaps outer 2
+
+# Only enable gaps when more than one container exists
+smart_gaps on
+
+# Hide edge borders when only one window
+smart_borders on
+
+# Border style: 2px solid, no title bar
+default_border pixel 2
+default_floating_border pixel 2
+
+# ============================================================
+# Colors (Spacemacs dark palette)
+# ============================================================
+# class                 border  backgr. text    indicator child_border
+client.focused          #4f97d7 #292b2e #b2b2b2 #4f97d7   #4f97d7
+client.focused_inactive #5d4d7a #212026 #b2b2b2 #5d4d7a   #5d4d7a
+client.unfocused        #5d4d7a #292b2e #686868 #5d4d7a   #5d4d7a
+client.urgent           #ce537a #ce537a #292b2e #ce537a   #ce537a
+client.placeholder      #292b2e #292b2e #b2b2b2 #292b2e   #292b2e
+client.background       #292b2e
+
+# ============================================================
+# Applications
+# ============================================================
+
+# Terminal — drop into a Spacemacs vterm (multi-vterm).
+# Uses the running emacs server if present; otherwise opens a new emacs frame.
+bindsym $mod+Return exec emacsclient -c -a "" --eval '(multi-vterm)'
+
+# Application launcher (rofi)
+bindsym $mod+d exec rofi -show drun -theme spacemacs
+
+# File manager
+bindsym $mod+n exec pcmanfm
+
+# Browser
+bindsym $mod+b exec firefox
+
+# Emacs
+bindsym $mod+m exec emacs
+
+# Lock screen
+bindsym $mod+Escape exec i3lock -c 292b2e
+
+# ============================================================
+# Helpers
+# ============================================================
+
+# Keybinding cheat sheet (rofi popup)
+bindsym $mod+Shift+question exec ~/.config/i3/scripts/cheatsheet.sh
+
+# Quick emacs scratchpad (small floating window)
+bindsym $mod+Shift+e exec --no-startup-id i3-msg 'workspace 10; exec emacs --name scratchpad; floating enable; resize set 1200 700; move position center'
+
+# Display layout / monitor config
+bindsym $mod+x exec arandr
+
+# Reload i3 config
+bindsym $mod+Shift+c reload
+
+# Restart i3 in-place
+bindsym $mod+Shift+r restart
+
+# Power menu (rofi)
+bindsym $mod+Shift+x exec ~/.config/i3/scripts/power-menu.sh
+
+# Screenshot
+bindsym $mod+Print exec flameshot gui
+bindsym Print exec flameshot full -p ~/Pictures/Screenshots
+
+# ============================================================
+# Media / function keys
+# ============================================================
+# PulseAudio
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+# Brightness
+bindsym XF86MonBrightnessUp exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+
+# Media player
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioPause exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# ============================================================
+# i3bar (built-in status bar)
+# ============================================================
+bar {
+    position top
+    height 28
+    font pango:SauceCodePro Nerd Font 10
+    status_command i3status
+
+    colors {
+        background #292b2e
+        statusline #b2b2b2
+        separator  #5d4d7a
+
+        # class            border  backgr. text
+        focused_workspace  #4f97d7 #4f97d7 #292b2e
+        active_workspace   #bc6ec5 #5d4d7a #b2b2b2
+        inactive_workspace #5d4d7a #292b2e #686868
+        urgent_workspace   #ce537a #ce537a #292b2e
+    }
+}
+
+# ============================================================
+# Startup programs
+# ============================================================
+# Compositor (transparency, animations, vsync)
+exec --no-startup-id picom
+
+# Notification daemon
+exec --no-startup-id dunst
+
+# Set wallpaper (change path to your own)
+# Solid fallback first so the SDDM greeter image is always cleared from the
+# root window, even if the wallpaper file below is missing.
+exec --no-startup-id xsetroot -solid "#292b2e"
+exec --no-startup-id feh --bg-fill ~/Pictures/wallpaper.jpg
+
+# Start polkit agent (for GUI privilege escalation)
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# Start redshift (blue light filter)
+exec --no-startup-id redshift -l 40.7:-74.0 -t 6500:3500
+
+# Start unclutter (hide mouse cursor when idle)
+exec --no-startup-id unclutter --timeout 3
+
+# ============================================================
+# Window rules
+# ============================================================
+
+# Floating windows
+for_window [class="Pavucontrol"] floating enable
+for_window [class="Nm-connection-editor"] floating enable
+for_window [class="Lxappearance"] floating enable
+for_window [class="Arandr"] floating enable
+for_window [class="feh"] floating enable
+for_window [class="Thunar" title="File Operation Progress"] floating enable
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [window_role="task_dialog"] floating enable
+
+# Assign apps to workspaces
+assign [class="firefox"] $ws2
+assign [class="Emacs"] $ws3
+assign [class="Slack"] $ws4
+assign [class="discord"] $ws4
+assign [class="Spotify"] $ws5
