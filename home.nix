@@ -48,7 +48,7 @@
     just   # task runner — drives the post-activation bootstrap (see Justfile)
 
     # i3 / desktop tooling (referenced by i3 config)
-    rofi
+    # rofi is managed by programs.rofi (below) to support plugins like rofi-emoji
     picom
     dunst
     feh
@@ -336,14 +336,21 @@
   xdg.configFile."i3/scripts/empty-status.sh".source = ./i3/scripts/empty-status.sh;
 
   # ----------------------------------------------------------------
-  # Rofi theme (Spacemacs dark) for drun application picker
-  # ----------------------------------------------------------------
-  xdg.configFile."rofi/spacemacs.rasi".source = ./rofi/spacemacs.rasi;
-
-  # ----------------------------------------------------------------
   # i3status bar config (Spacemacs dark theme)
   # ----------------------------------------------------------------
   xdg.configFile."i3status/config".force = true;
+
+  # ----------------------------------------------------------------
+  # Rofi application launcher + emoji plugin
+  # Theme is the Spacemacs-dark rasi; theme is managed here so Home Manager
+  # can set up plugin paths for rofi-emoji automatically.
+  # ----------------------------------------------------------------
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi;
+    theme = ./rofi/spacemacs.rasi;
+    plugins = [ pkgs.rofi-emoji ];
+  };
   xdg.configFile."i3status/config".source = ./i3status/config;
 
   # ----------------------------------------------------------------

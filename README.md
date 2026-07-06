@@ -180,6 +180,9 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 ## Extra scoops to add
 
+### Already aboard
+- **rofi-emoji** — emoji picker bound to `$mod+period`.
+
 ### Development
 - **direnv** — load per-project environment variables automatically. Great
   for nix-shell or per-project tool versions. `programs.direnv.enable = true;`
