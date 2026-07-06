@@ -38,6 +38,7 @@ cat <<'EOF' | rofi -dmenu -i -p "i3 Keybindings" -theme spacemacs -theme-str 'wi
 ─── APPS ───────────────────────────────
   Mod+Return .................. terminal (qterminal)
   Mod+d ....................... app launcher (rofi)
+  Mod+period .................. emoji picker (rofi-emoji)
   Mod+b ....................... firefox
   Mod+m ....................... emacs
   Mod+n ....................... file manager (pcmanfm)
