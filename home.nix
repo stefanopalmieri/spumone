@@ -133,6 +133,50 @@
       save = 10000;
       path = "$HOME/.zsh_history";
     };
+
+    # Inline command suggestions (grey ghost text) from zsh-autosuggestions.
+    # Color = Spacemacs-dark "faint" foreground (#686868) — subtle, on-theme.
+    autosuggestion = {
+      enable = true;
+      highlight = "fg=#686868";
+    };
+
+    # Command/syntax coloring from zsh-syntax-highlighting.
+    # Palette mapped to the Spacemacs-dark theme:
+    #   red      #f2241f  (error / unknown token)    [Color1]
+    #   blue     #4f97d7  (keywords / precommands)    [Color4]
+    #   purple   #bc6ec5  (functions / aliases / cmds) [Spacemacs func face]
+    #   green    #2d9574  (strings / paths)           [Spacemacs string face]
+    #   magenta  #a45bad  (constants / globs / nums)  [Spacemacs const face]
+    #   teal     #2aa1ae  (comments)                 [Spacemacs comment face]
+    #   base fg  #b2b2b2  (separators / default)      [colorscheme Foreground]
+    syntaxHighlighting = {
+      enable = true;
+      styles = {
+        unknown-token      = "fg=#f2241f";
+        reserved-word      = "fg=#4f97d7";
+        precommand         = "fg=#4f97d7";
+        alias              = "fg=#bc6ec5";
+        builtin            = "fg=#bc6ec5";
+        function           = "fg=#bc6ec5";
+        command            = "fg=#bc6ec5";
+        commandseparator   = "fg=#b2b2b2";
+        redirection        = "fg=#bc6ec5";
+        assign             = "fg=#bc6ec5";
+        back-quoted-argument = "fg=#bc6ec5";
+        path               = "fg=#2d9574";
+        path_pathseparator = "fg=#2d9574";
+        glob               = "fg=#a45bad";
+        single-quoted-argument  = "fg=#2d9574";
+        double-quoted-argument  = "fg=#2d9574";
+        dollar-quoted-argument   = "fg=#2d9574";
+        rc-quoted-argument       = "fg=#2d9574";
+        arg-numeric         = "fg=#a45bad";
+        boolean             = "fg=#a45bad";
+        comment             = "fg=#2aa1ae";
+      };
+    };
+
     initContent = ''
       # Load starship prompt
       if [[ $TERM != "dumb" ]]; then
