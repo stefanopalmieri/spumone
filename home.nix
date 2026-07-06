@@ -19,6 +19,16 @@
     # Emacs with tree-sitter support (vterm handled by Spacemacs config)
     emacs
 
+    # Build toolchain for Spacemacs's vterm/multivterm layers.
+    # NOTE: cmake + libvterm-dev come from APT, NOT Nix (see Justfile
+    # `vterm-deps`). The Nix `cmake` pulls in librhash.so, whose
+    # rhash_md5_process_block is built with the SSE4.1 `pinsrd` instruction;
+    # this machine's Core 2 Duo T7250 (SSSE3 max, no SSE4.1) executes it ->
+    # SIGILL during configure, so vterm's build dies with "No targets and no
+    # makefile". The apt /usr/bin/cmake links the baseline-x86-64 glibc and
+    # works. libtool is kept here (it's a shell-script wrapper, no SSE deps).
+    libtool
+
     # Terminal
     zsh
     starship
@@ -35,6 +45,7 @@
     unzip
     jq
     fastfetch
+    just   # task runner — drives the post-activation bootstrap (see Justfile)
 
     # i3 / desktop tooling (referenced by i3 config)
     rofi

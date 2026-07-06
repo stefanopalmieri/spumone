@@ -59,49 +59,78 @@ git add flake.lock && git commit -m "flake update"
 
 ### Post-activation one-offs (not managed by Home Manager)
 
-These are outside Nix — re-run them once after activating on a fresh install:
+These steps are outside Nix — system packages, login-shell changes, and a
+writable git working tree. They're automated by a `Justfile` (driven by
+[`just`](https://github.com/casey/just), which Home Manager installs). After
+activating on a fresh install, run:
 
-- **Login shell**: use the **system** zsh, and **never** point your login shell
-  at the Nix zsh:
-  ```bash
-  sudo apt install zsh     # system zsh at /usr/bin/zsh (listed in /etc/shells)
-  chsh -s /usr/bin/zsh     # NOT `chsh -s $(which zsh)` — that resolves to
-                           # ~/.nix-profile/bin/zsh, a symlink into /nix/store
-  ```
-  Home Manager still manages your `~/.zshrc` / `~/.zshenv` (starship, aliases,
-  Nix PATH); only the *login* shell needs to be the stable apt binary. Pointing
-  the login shell into `/nix` is a **lockout trap**: that path isn't in
-  `/etc/shells`, `nix-collect-garbage` can invalidate it, and wiping `/nix`
-  (see the migration section) deletes your login shell out from under you — on
-  the next boot neither the graphical session nor a TTY can start a shell.
-- **i3 window manager**: Home Manager ships i3's *config*
-  (`~/.config/i3/config`), the i3status config, and the rofi theme — but **not
-  the `i3` binary**, which is apt-managed. On a fresh Lubuntu install i3 is
-  not present, so SDDM's session dropdown won't list it (only Lubuntu / LXQt /
-  openbox appear). Install it and confirm the session entry landed:
-  ```bash
-  sudo apt install i3        # pulls in i3-wm, which ships
-                             # /usr/share/xsessions/i3.desktop
-  ls /usr/share/xsessions/   # should now show i3.desktop
-  ```
-  Then log out; SDDM will offer **i3** (and **i3-with-shmlog**) in the session
-  picker. After logging in, the i3 config's bare-name launches (rofi, picom,
-  dunst, firefox, emacs) resolve to the Nix-installed binaries — see the next
-  bullet if any of them don't open.
-- **Spacemacs**: `~/.emacs.d` bootstraps itself on first Emacs launch (HM only
-  ships `.spacemacs`), so it regenerates automatically.
+```bash
+cd ~/.config/home-manager
+just bootstrap
+```
+
+`just bootstrap` primes sudo once, then runs every recipe below in order; each
+is idempotent, so re-running after tweaks is safe. `just --list` prints the
+menu; run `just verify-i3` after your first i3 login. The commands live in the
+`Justfile`; the *why* behind each step is below.
+
+- **`login-shell`** — installs the **system** zsh and sets it as the login
+  shell. **Never** point the login shell at the Nix zsh
+  (`~/.nix-profile/bin/zsh`): that's a symlink into `/nix/store`, isn't in
+  `/etc/shells`, can be invalidated by `nix-collect-garbage`, and gets deleted
+  if `/nix` is wiped (see the migration section) — locking you out of every
+  graphical and TTY login. Home Manager still owns `~/.zshrc` / `~/.zshenv`
+  (starship, aliases, Nix PATH); only the *login* shell must be the stable apt
+  binary. (Run `chsh -s $(which zsh)` and you resolve to the nix symlink — the
+  trap.)
+- **`i3`** — installs apt i3. Home Manager ships i3's *config*
+  (`~/.config/i3/config`), the i3status config, and the rofi theme, but **not
+  the `i3` binary**. On a fresh Lubuntu install i3 is absent, so SDDM's session
+  dropdown lists only Lubuntu / LXQt / openbox. After this lands
+  `/usr/share/xsessions/i3.desktop`, log out and SDDM offers **i3** (and
+  **i3-with-shmog**) in the picker. i3's config launches rofi/picom/dunst/
+  firefox/emacs by bare name — see `verify-i3` if any don't open.
+- **`vterm-deps`** — installs `build-essential cmake libvterm-dev` (apt, **not**
+  Nix) for Spacemacs's vterm/multivterm layers, which compile a C module
+  against libvterm on first install. Home Manager does **not** ship a C
+  compiler or `make` (those aren't user dotfiles). Crucially, the **Nix**
+  `cmake` must be avoided on this machine: it links `librhash.so`, whose
+  `rhash_md5_process_block` is built with the SSE4.1 `pinsrd` instruction,
+  and this Core 2 Duo T7250 (SSSE3 max — no SSE4.1) executes it → `SIGILL`
+  mid-configure (strace confirms `ILL_ILLOPN` inside `librhash.so.1`). cmake
+  dies before writing a Makefile, so the subsequent `make` reports `No targets
+  specified and no makefile found` — the visible symptom. The apt
+  `/usr/bin/cmake` links the baseline-x86-64 glibc and works, so `cmake` and
+  `libvterm-neovim` were removed from `home.nix`'s `home.packages` (only
+  `libtool`, a shell wrapper with no SSE deps, stays). `libvterm-dev` puts
+  `vterm.h` + `libvterm.so` under `/usr`, so vterm's `CMakeLists.txt`
+  `find_path`/`find_library` pick it up directly (no vendored build, no
+  `CMAKE_PREFIX_PATH` needed). Rebuild vterm after `home-manager switch` with
+  `rm -rf build && cmake .. && cmake --build .` from the vterm package dir.
+- **`spacemacs`** — clones Spacemacs into `~/.emacs.d`. Home Manager only ships
+  the `~/.spacemacs` dotfile; the distribution is a writable working tree
+  (downloads packages/cache at runtime), so it can't be a read-only Nix-store
+  symlink. Spacemacs does **not** auto-bootstrap — a plain stub `~/.emacs.d`
+  (just `auto-save-list/` / `eln-cache/`) means Emacs loads vanilla defaults
+  and silently ignores `.spacemacs`. After cloning, launch Emacs once; on
+  first run Spacemacs reads `~/.spacemacs`, installs the declared layers, and
+  regenerates `~/.emacs.d` from there on.
+- **`verify-i3`** — manual post-login checks (can't be automated): confirm
+  `$mod+d` (rofi), `$mod+b` (firefox), and `$mod+Return` (terminal) actually
+  open after your first i3 login. i3 is apt-managed but launches
+  rofi/picom/dunst/firefox/emacs by bare name, so those Nix-installed binaries
+  must be on the *graphical session* PATH. If nothing happens, the display
+  manager isn't putting `~/.nix-profile/bin` on PATH — ensure it sources
+  `~/.profile`, or add `export PATH="$HOME/.nix-profile/bin:$PATH"` to
+  `~/.xprofile`.
+
+Not automated (no recipe — handle manually on a true nuke):
+
 - **Apt-managed base**: the OS, system i3/X server/login manager, and any apt
   packages (e.g. the Chrome `.deb`) are outside Nix — reinstall those
-  separately on a true nuke.
+  separately.
 - **SSH/GPG keys, browser profile, other dotfiles**: back these up separately;
   they are not declared in `home.nix`.
-- **Verify Nix apps launch from i3**: after logging into the i3 session, confirm
-  `$mod+d` (rofi) and `$mod+b` (firefox) actually open. i3 itself is apt-managed,
-  but it launches rofi/picom/dunst/firefox/emacs by bare name, so those
-  Nix-installed binaries must be on the *graphical session* PATH. If nothing
-  happens, your display manager isn't putting `~/.nix-profile/bin` on PATH —
-  make sure it sources `~/.profile`, or add `export PATH="$HOME/.nix-profile/bin:$PATH"`
-  to `~/.xprofile`.
 
 ## Notes
 
