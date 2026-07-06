@@ -241,6 +241,75 @@
   xdg.dataFile."qterminal/color-schemes/Spacemacs.colorscheme".source =
     ./Spacemacs.colorscheme;
 
+  # ----------------------------------------------------------------
+  # LXQt theming — make the panel, menus, pcmanfm-qt, lxqt-runner, and
+  # every Qt app pick up the Spacemacs-dark palette + SauceCodePro font.
+  #
+  # LXQt's appearance lives in ~/.config/lxqt/lxqt.conf:
+  #   [General]  theme=        panel QSS/SVG theme
+  #              icon_theme=   icon set
+  #   [Palette]  *_color=       the QPalette applied to all Qt widgets
+  #   [Qt]       font=         QFont::toString()  style=  Qt style
+  # The palette keys below are exactly the ones lxqt-config-appearance
+  # reads/writes (see styleconfig.cpp: window_color, base_color,
+  # highlight_color, window_text_color, text_color, highlighted_text_color,
+  # link_color, link_visited_color, tooltip_base_color, tooltip_text_color).
+  #
+  # Caveat: HM symlinks this file read-only, so the GUI Appearance config
+  # won't be able to *save* palette changes back — edit home.nix instead.
+  # (The palette file below is also shipped as a loadable palette so it
+  # appears in the GUI's "Load Palette" list.)
+  xdg.configFile."lxqt/lxqt.conf".force = true;
+  xdg.configFile."lxqt/lxqt.conf".text = ''
+    [General]
+    __userfile__=true
+    single_click_activate=false
+    tool_button_style=ToolButtonTextBesideIcon
+    # Dark panel QSS/SVG theme (closest to Spacemacs-dark).
+    theme=dark
+    # Dark icon set matching the panel — installed system-wide by Lubuntu.
+    icon_theme=Papirus-Dark
+
+    [Palette]
+    # Spacemacs-dark: bg1=#292b2e, bg2=#2a2c31, fg=#b2b2b2,
+    # blue=#4f97d7 (Color4, accent/selection), purple=#bc6ec5 (link-visited).
+    window_color=#292b2e
+    base_color=#2a2c31
+    window_text_color=#b2b2b2
+    text_color=#b2b2b2
+    highlight_color=#4f97d7
+    highlighted_text_color=#ffffff
+    link_color=#4f97d7
+    link_visited_color=#bc6ec5
+    tooltip_base_color=#2a2c31
+    tooltip_text_color=#b2b2b2
+
+    [Qt]
+    # QFont::toString() format: family,pointSize,pixelSize,weight,italic,…
+    # Same shape as the Lubuntu default, family swapped to the Nerd Font
+    # used by QTerminal + Spacemacs so the whole desktop matches.
+    font="SauceCodePro Nerd Font,11,-1,5,50,0,0,0,0,0"
+    doubleClickInterval=400
+    style=Fusion
+    wheelScrollLines=3
+  '';
+
+  # Loadable Spacemacs-dark palette for lxqt-config-appearance's
+  # "Load Palette" dialog (lives in $XDG_DATA_HOME/lxqt/palettes/).
+  xdg.dataFile."lxqt/palettes/Spacemacs".text = ''
+    [Palette]
+    base_color=#2a2c31
+    highlight_color=#4f97d7
+    highlighted_text_color=#ffffff
+    link_color=#4f97d7
+    link_visited_color=#bc6ec5
+    text_color=#b2b2b2
+    window_color=#292b2e
+    window_text_color=#b2b2b2
+    tooltip_base_color=#2a2c31
+    tooltip_text_color=#b2b2b2
+  '';
+
   # Nerd Fonts are installed via home.packages; enabling fontconfig here makes
   # fontconfig discover everything under the Home Manager profile's share/fonts,
   # so QTerminal / i3 / starship can resolve "SauceCodePro Nerd Font".
