@@ -78,7 +78,7 @@ menu; run `just verify-i3` after your first i3 login. The commands live in the
   shell. **Never** point the login shell at the Nix zsh
   (`~/.nix-profile/bin/zsh`): that's a symlink into `/nix/store`, isn't in
   `/etc/shells`, can be invalidated by `nix-collect-garbage`, and gets deleted
-  if `/nix` is wiped (see the migration section) — locking you out of every
+  if `/nix` is wiped — locking you out of every
   graphical and TTY login. Home Manager still owns `~/.zshrc` / `~/.zshenv`
   (starship, aliases, Nix PATH); only the *login* shell must be the stable apt
   binary. (Run `chsh -s $(which zsh)` and you resolve to the nix symlink — the
@@ -138,9 +138,9 @@ Not automated (no recipe — handle manually on a true nuke):
 - **Starship**: Config is supplied as raw TOML via `xdg.configFile` (`starship.toml`)
 - **NUR**: no longer used; the `nur` channel is not required
 - **Spacemacs layers**: emacs-lisp, helm, multiple-cursors, shell (vterm), treemacs
-- **Shell sourcing**: `home.nix` (`programs.zsh.envExtra`) and `~/.profile` both
-  source either the multi-user `nix-daemon.sh` or the single-user `nix.sh`, so
-  the config works on either install style
+- **Shell sourcing**: `home.nix` (`programs.zsh.envExtra`) and `~/.profile`
+  source `nix-daemon.sh` (with a fallback to `nix.sh`) so `~/.nix-profile/bin`
+  is on PATH.
 - **QTerminal color scheme**: `Spacemacs.colorscheme` is shipped via
   `xdg.dataFile` to `~/.local/share/qterminal/color-schemes/`, **not** beside
   `qterminal.ini`. QTerminal's `MainWindow::setupCustomDirs()` discovers user
@@ -155,69 +155,6 @@ Not automated (no recipe — handle manually on a true nuke):
   `$XDG_DATA_HOME`. If QTerminal ever launches with a white background after a
   rebuild, this is why.
 
-## Migrating from a legacy single-user + channels install
-
-The machine currently has the old `curl ... | sh` single-user Nix (no
-`nix-daemon`, `/nix/store` owned by the user, channels in `~/.nix-channels`).
-This section converts it to the flake + Determinate multi-user setup above.
-
-The uninstall/reinstall is **destructive** (it wipes `/nix` and all
-generations) and needs `sudo`, so run it in your own terminal.
-
-```bash
-# 0. (Recommended) Push the repo to a private remote as a backup.
-#    Your config lives outside /nix, so it survives the steps below either way.
-cd ~/.config/home-manager
-#    Set a real identity if the placeholder is still in place:
-git config user.email "you@example.com"
-git config user.name  "Your Name"
-git remote add origin git@github.com:<you>/home-manager.git   # or https URL
-git push -u origin main
-
-# 1. CRITICAL: reset your login shell OUT of /nix before wiping it. If your
-#    login shell still points at ~/.nix-profile/bin/zsh (or a /nix/store path),
-#    the next step deletes it and you get locked out of every login (graphical
-#    AND TTY). Use the apt-installed system zsh instead:
-sudo apt install zsh
-chsh -s /usr/bin/zsh          # or: chsh -s /usr/bin/bash
-#    Confirm it took (should NOT contain /nix):
-getent passwd "$USER" | awk -F: '{print $NF}'
-
-# 2. Uninstall the legacy single-user Nix (wipes /nix and all generations).
-#    ~/.config/home-manager is untouched.
-sudo rm -rf /nix /etc/nix \
-  ~/.nix-profile ~/.nix-defexpr ~/.nix-channels \
-  ~/.local/state/nix
-
-# 3. Install Nix multi-user via Determinate (flakes enabled by default).
-curl --proto '=https' --tlsv1.2 -sSf -L \
-  https://install.determinate.systems/nix | sh -s -- install
-
-# 4. Load Nix into this shell.
-. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-
-# 5. Rebuild everything from the pinned flake — no channels, no home-manager
-#    CLI needed.
-cd ~/.config/home-manager
-nix build .#homeConfigurations.stefano.activationPackage
-./result/activate
-```
-
-After step 5, all packages, `.spacemacs`, starship, i3/rofi/i3status configs,
-zsh, etc. come back exactly as they were (pinned to the same nixpkgs commit).
-`~/.nix-profile` becomes a per-user profile under
-`/nix/var/nix/profiles/per-user/stefano/` instead of the old single-user
-location.
-
-If the Determinate installer complains about leftover `/nix`, re-run the
-`rm -rf` in step 1 (some files under `/nix/store` may be root-owned in odd
-cases — `sudo rm -rf /nix` handles it).
-
-> **Status note (as of this commit):** the repo's git identity is a placeholder
-> (`stefano <stefano@localhost>`) and no remote is configured yet, so step 0 is
-> currently blocked. The config is safe on disk regardless. Finish step 0 as
-> soon as GitHub access is available.
-
 ## Other things you might want to add
 
 ### Development
@@ -225,23 +162,16 @@ cases — `sudo rm -rf /nix` handles it).
 - **fzf** — fuzzy finder, integrates with bash/emacs. `programs.fzf.enable = true;`
 - **zoxide** — smarter `cd` command that learns your habits. `programs.zoxide.enable = true;`
 - **lazygit** — terminal UI for git. `programs.lazygit.enable = true;`
-- **neovim** — as a lightweight emacs alternative for quick edits. `programs.neovim.enable = true;`
 - **tmux** — terminal multiplexer, pairs well with emacs. `programs.tmux.enable = true;`
 
 ### System tools
 - **alacritty** or **wezterm** — GPU-accelerated terminal emulators. `programs.alacritty.enable = true;`
-- **fish** or **zsh** — alternative shells with better defaults. `programs.fish.enable = true;`
+- **fish** — alternative shell with better defaults. `programs.fish.enable = true;`
 - **btop** — modern system monitor (better htop). Add to `home.packages`.
 
 ### Emacs enhancements
 - **emacs-overlay** — nix-community's Emacs overlay for bleeding-edge versions. Useful if you want emacs31/git builds.
 - **tree-sitter** grammars — for better syntax highlighting in emacs.
-
-### Desktop
-- **rofi** — application launcher (replaces Lubuntu's default). `programs.rofi.enable = true;`
-- **dunst** — lightweight notification daemon. `services.dunst.enable = true;`
-- **feh** — set wallpapers from command line. Add to `home.packages`.
-- **flameshot** — screenshot tool. Add to `home.packages`.
 
 ### Networking
 - **openssh** — SSH client config. `programs.ssh.enable = true;`
@@ -253,7 +183,6 @@ cases — `sudo rm -rf /nix` handles it).
 - **sops** — encrypted secrets in git. Great for managing API keys declaratively.
 
 ### Nix-specific
-- **Flakes** — pin nixpkgs to a specific version for full reproducibility. Add a `flake.nix` to lock inputs.
 - **agenix** or **sops-nix** — declarative secret management for NixOS/Home Manager.
 - **nix-index** — quickly find which nixpkg provides a file. `programs.nix-index.enable = true;`
 - **nh** — nice helper for nix commands (`nh os switch`, `nh home switch`). Add to `home.packages`.
