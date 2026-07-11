@@ -5,6 +5,9 @@
   home.homeDirectory = "/home/stefano";
   home.stateVersion = "24.11";
 
+  # Pi's standalone node/bin directory
+  home.sessionPath = [ "/home/stefano/.local/share/pi-node/node-v22.23.1-linux-x64/bin" ];
+
   # ----------------------------------------------------------------
   # Packages
   # ----------------------------------------------------------------

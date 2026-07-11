@@ -69,16 +69,16 @@ bindsym $mod+Shift+s sticky toggle
 # Workspaces
 # ============================================================
 # Named workspaces with icons (requires a nerd font or emoji-capable font)
-set $ws1  "1: 󰲌"
-set $ws2  "2: 󰈹"
-set $ws3  "3: 󰆼"
-set $ws4  "4: 󰍩"
-set $ws5  "5: 󰝚"
-set $ws6  "6: 󰆍"
-set $ws7  "7: 󰆧"
-set $ws8  "8: 󰑔"
-set $ws9  "9: 󰎤"
-set $ws10 "10: 󰎙"
+set $ws1  "1: 󰆍"    # terminal (md-console)
+set $ws2  "2: 󰊯"    # chrome   (md-google_chrome)
+set $ws3  "3: "    # emacs    (dev-emacs)
+set $ws4  "4: 󰲌"    # apps
+set $ws5  "5: 󰍩"    # messages
+set $ws6  "6: 󰝚"    # music
+set $ws7  "7: 󰆧"    # misc
+set $ws8  "8: 󰑔"    # remote
+set $ws9  "9: 󰎤"    #
+set $ws10 "10: 󰎙"   #
 
 # Switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -166,9 +166,9 @@ client.background       #292b2e
 # Applications
 # ============================================================
 
-# Terminal — drop into a Spacemacs vterm (multi-vterm).
-# Uses the running emacs server if present; otherwise opens a new emacs frame.
-bindsym $mod+Return exec emacsclient -c -a "" --eval '(multi-vterm)'
+# Terminal — drop into a Spacemacs vterm (multi-vterm) on ws1.
+# --name vterm lets i3 distinguish it from regular Emacs frames.
+bindsym $mod+Return exec emacsclient -c -a "" --name vterm --eval '(multi-vterm)'
 
 # Application launcher (rofi)
 bindsym $mod+d exec rofi -show drun
@@ -217,11 +217,11 @@ bindsym Print exec flameshot full -p ~/Pictures/Screenshots
 # ============================================================
 # Media / function keys
 # ============================================================
-# PulseAudio
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+# PipeWire volume control (wpctl is native, pactl needs pulseaudio-utils)
+bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
 
 # Brightness
 bindsym XF86MonBrightnessUp exec brightnessctl set +10%
@@ -261,6 +261,7 @@ bar {
 bar {
     position top
     height 1
+    workspace_buttons no
     status_command ~/.config/i3/scripts/empty-status.sh
     colors {
         background #5d4d7a
@@ -308,7 +309,11 @@ for_window [window_role="task_dialog"] floating enable
 
 # Assign apps to workspaces
 assign [class="firefox"] $ws2
-assign [class="Emacs"] $ws3
+assign [class="Chromium"] $ws2
+# Terminal (emacsclient with --name vterm) lands on ws1
+for_window [instance="vterm"] move to workspace $ws1
+# Non-terminal Emacs frames go to ws3
+for_window [class="Emacs"] move to workspace $ws3
 assign [class="Slack"] $ws4
 assign [class="discord"] $ws4
 assign [class="Spotify"] $ws5
