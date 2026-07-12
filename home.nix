@@ -8,10 +8,20 @@
   # Pi's standalone node/bin directory
   home.sessionPath = [ "/home/stefano/.local/share/pi-node/node-v22.23.1-linux-x64/bin" ];
 
+  # Force Qt apps to use qt5ct for theming (not LXQt's platform theme).
+  # Without this, QTerminal / pcmanfm-qt / etc. render with default
+  # light-gray Fusion widgets under i3 even though the LXQt palette is set.
+  home.sessionVariables = {
+    QT_QPA_PLATFORMTHEME = "qt5ct";
+  };
+
   # ----------------------------------------------------------------
   # Packages
   # ----------------------------------------------------------------
   home.packages = with pkgs; [
+    # Qt theming (qt5ct lets Qt apps look right under i3)
+    libsForQt5.qt5ct
+
     # Core
     git
     curl
@@ -227,6 +237,26 @@
     withPython3 = false;
   };
 
+
+  # ----------------------------------------------------------------
+  # qt5ct — dark Fusion style + Spacemacs palette for Qt widgets
+  # (menus, scrollbars, tooltips, right-click context menus in
+  # QTerminal, pcmanfm-qt, etc. — the chrome the terminal colorscheme
+  # doesn't touch)
+  # ----------------------------------------------------------------
+  xdg.configFile."qt5ct/qt5ct.conf".text = ''
+    [Appearance]
+    style=Fusion
+    custom_palette=true
+    color_scheme_path=/home/stefano/.config/qt5ct/colors/Spacemacs.conf
+    icon_theme=Papirus-Dark
+  '';
+  xdg.configFile."qt5ct/colors/Spacemacs.conf".text = ''
+    [ColorScheme]
+    active_colors=#b2b2b2, #2a2c31, #3a3c41, #35373c, #1e1f23, #232428, #b2b2b2, #e3dedd, #b2b2b2, #2a2c31, #292b2e, #0a0814, #4f97d7, #ffffff, #4f97d7, #bc6ec5, #35373c, #292b2e, #2a2c31, #b2b2b2
+    disabled_colors=#686868, #292b2e, #3a3c41, #35373c, #1e1f23, #232428, #686868, #e3dedd, #686868, #2a2c31, #292b2e, #0a0814, #3a3c4a, #686868, #3a3c4a, #5d4d7a, #35373c, #292b2e, #2a2c31, #686868
+    inactive_colors=#b2b2b2, #2a2c31, #3a3c41, #35373c, #1e1f23, #232428, #b2b2b2, #e3dedd, #b2b2b2, #2a2c31, #292b2e, #0a0814, #3a3c4a, #686868, #3a3c4a, #5d4d7a, #35373c, #292b2e, #2a2c31, #b2b2b2
+  '';
 
   # ----------------------------------------------------------------
   # Terminal font + color scheme (QTerminal)
