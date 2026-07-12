@@ -42,6 +42,11 @@
     # works. libtool is kept here (it's a shell-script wrapper, no SSE deps).
     libtool
 
+    # Zig — needed to compile ghostel's native module from source.
+    # Ghostel's compile-command already passes `-Dcpu=baseline` so it
+    # won't emit SSE4.1 instructions on this Core 2 Duo T7250.
+    zig
+
     # Terminal
     zsh
     starship
