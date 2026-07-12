@@ -17,7 +17,9 @@ reconstitute on any fresh Lubuntu install.
 - **Viewport**: Firefox + Vimium
 
 The palette is Spacemacs-dark gelato: purple `#5d4d7a`, blue `#4f97d7`,
-magenta `#bc6ec5`, on a near-black `#292b2e` cone.
+magenta `#bc6ec5`, on a near-black `#292b2e` cone. Ghostly terminals
+flicker in the purple glow — ghostel channels the specter of Ghostty's VT
+engine from beyond the veil.
 
 ## Pre-flight checklist (fresh Lubuntu install)
 
@@ -159,7 +161,7 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **Spacemacs layers**: emacs-lisp, helm, multiple-cursors, shell (vterm),
   treemacs, ghostel.
 - **Embrace the Evil**: `evil-ghostel` gives you `dd`, `ciw`, and `p` inside
-  your terminal. The editor war is over. Evil won.
+  your terminal. If you only knew the power of the dark side.
 - **Shell sourcing**: `home.nix` (`programs.zsh.envExtra`) and `~/.profile`
   source `nix-daemon.sh` (with a fallback to `nix.sh`) so `~/.nix-profile/bin`
   is on PATH.
