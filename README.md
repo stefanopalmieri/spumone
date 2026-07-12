@@ -10,9 +10,10 @@ reconstitute on any fresh Lubuntu install.
 ## Flavor profile
 
 - **Base**: Lubuntu (LXQt)
-- **Mission control**: Emacs 30 + Spacemacs, vim-style, with vterm shell
+- **Mission control**: Emacs 30 + Spacemacs, evil-mode (vim-style), with vterm + ghostel terminals
 - **Onboard AI**: Pi coding agent (npm wrapper)
 - **Helmet HUD**: Starship prompt, pastel powerline preset
+- **Alignment**: Chaotic Evil. `hjkl` or die.
 - **Viewport**: Firefox + Vimium
 
 The palette is Spacemacs-dark gelato: purple `#5d4d7a`, blue `#4f97d7`,
@@ -156,7 +157,9 @@ run `just verify-i3` after your first i3 login. The commands live in the
   (`starship.toml`).
 - **NUR**: no longer used; the `nur` channel is not required.
 - **Spacemacs layers**: emacs-lisp, helm, multiple-cursors, shell (vterm),
-  treemacs.
+  treemacs, ghostel.
+- **Embrace the Evil**: `evil-ghostel` gives you `dd`, `ciw`, and `p` inside
+  your terminal. The editor war is over. Evil won.
 - **Shell sourcing**: `home.nix` (`programs.zsh.envExtra`) and `~/.profile`
   source `nix-daemon.sh` (with a fallback to `nix.sh`) so `~/.nix-profile/bin`
   is on PATH.
