@@ -185,6 +185,21 @@
       if [[ $TERM != "dumb" ]]; then
         eval "$(${pkgs.starship}/bin/starship init zsh)"
       fi
+
+      # Vi keybindings for the shell (approach 1: zsh owns vi,
+      # Evil stays out of the way inside Spacemacs vterm).
+      bindkey -v
+
+      # Keep familiar emacs-style C- bindings in vi insert mode
+      # so they still work as muscle memory expects.
+      bindkey -M viins '^A' beginning-of-line
+      bindkey -M viins '^E' end-of-line
+      bindkey -M viins '^K' kill-line
+      bindkey -M viins '^U' backward-kill-line
+      bindkey -M viins '^W' backward-kill-word
+      bindkey -M viins '^R' history-incremental-search-backward
+      bindkey -M viins '^P' up-history
+      bindkey -M viins '^N' down-history
     '';
 
     # Source Nix profile setup so ~/.nix-profile/bin is on PATH.

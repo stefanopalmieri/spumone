@@ -65,7 +65,9 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(multi-vterm)
+   dotspacemacs-additional-packages '(multi-vterm
+                               ghostel
+                               evil-ghostel)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -588,24 +590,42 @@ before packages are loaded."
     (load custom-file))
 
   ;; ----------------------------------------------------------------
-  ;; vterm / multi-vterm
+  ;; vterm / multi-vterm — approach 1: zsh owns vi, Evil stays out
   ;; ----------------------------------------------------------------
-  ;; Launch zsh inside vterm so we get the Nix + Starship prompt
   (setq vterm-shell (executable-find "zsh"))
 
-  ;; multi-vterm: a project-like buffer manager for vterm buffers.
-  ;; `M-x multi-vterm' opens a new vterm; within a vterm buffer:
-  ;;   C-c C-t   new vterm
-  ;;   C-c C-n / C-c C-p   next/prev vterm
   (with-eval-after-load 'vterm
     (require 'multi-vterm)
-    ;; Bind a quick global key to pop a vterm
-    (spacemacs/set-leader-keys "'" 'multi-vterm)
-    ;; Cycle vterm buffers from a vterm window
-    (evil-define-key 'insert vterm-mode-map
-      (kbd "C-c C-n") 'multi-vterm-next
-      (kbd "C-c C-p") 'multi-vterm-previous
-      (kbd "C-c C-t") 'multi-vterm))
+
+    ;; Let zsh handle vi inside the terminal; Evil keeps out of its way.
+    (add-hook 'vterm-mode-hook #'evil-emacs-state)
+
+    ;; Pass most keys straight to the terminal
+    (setq vterm-keymap-exceptions nil)
+
+    ;; Pop a vterm with the leader key
+    (spacemacs/set-leader-keys "'" 'multi-vterm))
+
+  ;; ----------------------------------------------------------------
+  ;; Ghostel — terminal emulator powered by libghostty-vt
+  ;; ----------------------------------------------------------------
+  (use-package ghostel
+    :ensure t
+    :config
+    ;; Use zsh (the .spacemacs.env overrides $SHELL to bash)
+    (setq ghostel-shell (executable-find "zsh"))
+    ;; Wrapper: always open in $HOME, not the current buffer's directory
+    (defun my/ghostel ()
+      "Open a Ghostel terminal in $HOME."
+      (interactive)
+      (let ((default-directory (expand-file-name "~")))
+        (ghostel)))
+    (spacemacs/set-leader-keys "\"" 'my/ghostel))
+
+  (use-package evil-ghostel
+    :ensure t
+    :after (ghostel evil)
+    :hook (ghostel-mode . evil-ghostel-mode))
 
   )
 
