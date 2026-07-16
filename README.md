@@ -12,7 +12,7 @@ reconstitute on any fresh Lubuntu install.
 - **Base**: Lubuntu (LXQt)
 - **Mission control**: Emacs 30 + Spacemacs, evil-mode (vim-style), with vterm + ghostel terminals
 - **Onboard AI**: Pi coding agent (npm wrapper)
-- **Helmet HUD**: Starship prompt, pastel powerline preset
+- **Helmet HUD**: Starship prompt, spumone powerline theme
 - **Alignment**: Chaotic Evil. `hjkl` or die.
 - **Viewport**: Firefox + Vimium
 
@@ -156,7 +156,8 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **Pi**: Not in nixpkgs, so it's installed via an npm wrapper script at
   `~/.local/bin/pi`.
 - **Starship**: Config is supplied as raw TOML via `xdg.configFile`
-  (`starship.toml`).
+  (`starship.toml`). The spumone palette (red → white → white → green → green)
+  uses colors exclusively from nashamri/spacemacs-theme.
 - **NUR**: no longer used; the `nur` channel is not required.
 - **Spacemacs layers**: emacs-lisp, helm, multiple-cursors, shell (vterm),
   treemacs, ghostel.
