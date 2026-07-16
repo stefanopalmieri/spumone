@@ -6,10 +6,10 @@ $os\
 $username\
 [](bg:peach fg:red)\
 $directory\
-[](bg:yellow fg:peach)\
+[](bg:cursor fg:peach)\
 $git_branch\
 $git_status\
-[](fg:yellow bg:green)\
+[](fg:cursor bg:base)\
 $c\
 $rust\
 $golang\
@@ -20,11 +20,11 @@ $java\
 $kotlin\
 $haskell\
 $python\
-[](fg:green bg:sapphire)\
+[](fg:base bg:sapphire)\
 $conda\
-[](fg:sapphire bg:lavender)\
+[](fg:sapphire bg:suc)\
 $time\
-[ ](fg:lavender)\
+[ ](fg:suc)\
 $cmd_duration\
 $line_break\
 $character"""
@@ -78,62 +78,62 @@ truncation_symbol = "…/"
 
 [git_branch]
 symbol = ""
-style = "bg:yellow"
-format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
+style = "bg:cursor"
+format = '[[ $symbol $branch ](fg:crust bg:cursor)]($style)'
 
 [git_status]
-style = "bg:yellow"
-format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
+style = "bg:cursor"
+format = '[[($all_status$ahead_behind )](fg:crust bg:cursor)]($style)'
 
 [nodejs]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [bun]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [c]
 symbol = " "
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [rust]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [golang]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [php]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [java]
 symbol = " "
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [kotlin]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [haskell]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version) ](fg:crust bg:base)]($style)'
 
 [python]
 symbol = ""
-style = "bg:green"
-format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:crust bg:green)]($style)'
+style = "bg:base"
+format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:crust bg:base)]($style)'
 
 [docker_context]
 symbol = ""
@@ -149,8 +149,8 @@ ignore_base = false
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:lavender"
-format = '[[  $time ](fg:crust bg:lavender)]($style)'
+style = "bg:suc"
+format = '[[  $time ](fg:crust bg:suc)]($style)'
 
 [line_break]
 disabled = false
@@ -167,21 +167,24 @@ vimcmd_visual_symbol = '[❮](bold fg:yellow)'
 [cmd_duration]
 show_milliseconds = true
 format = " in $duration "
-style = "bg:lavender"
+style = "bg:suc"
 disabled = false
 show_notifications = true
 min_time_to_notify = 45000
 
-# Spacemacs-inspired palette (dark). Segment hues sweep
-# pink -> purple -> sky blue -> teal -> green -> gold,
-# mirroring Spacemacs' signature purple/teal/gold accents.
+# Spacemacs-inspired palette (dark). Segment hues sweep in a spumone
+# ice-cream pattern: red → purple → off-white → light gray → lime green → bright green.
+# Colors sourced exclusively from nashamri/spacemacs-theme.
 [palettes.spacemacs_dark]
 red       = "#ce537a"   # type (pink-red)      -> OS / username
 peach     = "#bc6ec5"   # func (purple)        -> directory
-yellow    = "#b1951d"   # head4 (gold/amber)   -> git (middle, warm pivot)
-green     = "#2d9574"   # str (teal/aqua)      -> languages
+cursor    = "#e3dedd"   # cursor (warm white)  -> git (spumone "white" 1)
+base      = "#b2b2b2"   # default text (gray)  -> languages (spumone "white" 2)
 sapphire  = "#67b11d"   # head3 (green)        -> conda / docker
-lavender  = "#4f97d7"   # keyword (sky blue)   -> time (cool end)
+suc       = "#86dc2f"   # success (lime green) -> time (spumone green end)
+yellow    = "#b1951d"   # head4 (gold/amber)
+green     = "#2d9574"   # str (teal/aqua)
+lavender  = "#4f97d7"   # keyword (sky blue)
 purple    = "#5d4d7a"   # act2 (modeline purple)
 blue      = "#4f97d7"   # keyword
 aqua      = "#2d9574"   # str
@@ -189,7 +192,6 @@ magenta   = "#a31db1"   # magenta
 cyan      = "#2aa1ae"   # comment teal
 orange    = "#dc752f"   # warning
 err       = "#f2241f"   # error red
-base      = "#b2b2b2"   # default text
 bg1       = "#292b2e"   # main background
 crust     = "#0a0814"   # bg4 (near-black, text on segments)
 
