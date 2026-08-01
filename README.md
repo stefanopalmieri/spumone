@@ -15,6 +15,9 @@ reconstitute on any fresh Lubuntu install.
 - **Helmet HUD**: Starship prompt, spumone powerline theme
 - **Alignment**: Chaotic Evil. `hjkl` or die.
 - **Viewport**: Firefox + Vimium
+- **Launch**: `startx` from tty1 — no display manager. `.zlogin`
+  auto-fires `startx` on login (one password, lands straight in i3);
+  `~/.xinitrc` sources the Nix profile and `exec i3`.
 
 The palette is Spacemacs-dark gelato: purple `#5d4d7a`, blue `#4f97d7`,
 magenta `#bc6ec5`, on a near-black `#292b2e` cone. Ghostly terminals
@@ -104,11 +107,19 @@ run `just verify-i3` after your first i3 login. The commands live in the
   you resolve to the nix symlink — a classic EVA leak.)
 - **`i3`** — installs apt i3. Home Manager ships i3's *config*
   (`~/.config/i3/config`), the i3status config, and the rofi theme, but **not
-  the `i3` binary**. On a fresh Lubuntu install i3 is absent, so SDDM's
-  session dropdown lists only Lubuntu / LXQt / openbox. After this lands
-  `/usr/share/xsessions/i3.desktop`, log out and SDDM offers **i3** in the
-  picker. i3's config launches rofi/picom/dunst/firefox/emacs by bare name —
-  see `verify-i3` if any hatch fails to open.
+  the `i3` binary**. The binary is needed by `~/.xinitrc` (`exec i3`). On a
+  fresh Lubuntu install i3 is absent, so this lands `/usr/bin/i3` (plus a
+  vestigial `/usr/share/xsessions/i3.desktop` that no display manager reads
+  anymore — startx doesn't use xsessions). i3's config launches
+  rofi/picom/dunst/firefox/emacs by bare name — see `verify-i3` if any hatch
+  fails to open.
+- **`startx`** — replaces the display manager with a `startx` flow:
+  installs + enables `startx/lock-on-suspend.service` (so suspend / lid-close
+  locks the screen, since there's no DM to re-prompt on resume) and disables
+  SDDM so boot lands at the tty1 login prompt. The session launch itself —
+  `.zlogin` → `startx` → `~/.xinitrc` → `i3` — is fully Home-Manager-managed
+  (see `programs.zsh.loginExtra` and `home.file.".xinitrc"` in `home.nix`);
+  this recipe only handles the system-level pieces HM can't.
 - **`vterm-deps`** — installs `build-essential cmake libvterm-dev` (apt, **not**
   Nix) for Spacemacs's vterm/multivterm layers, which compile a C module
   against libvterm on first install. Home Manager does **not** ship a C
@@ -138,10 +149,11 @@ run `just verify-i3` after your first i3 login. The commands live in the
   `$mod+d` (rofi), `$mod+b` (firefox), and `$mod+Return` (terminal) actually
   open after your first i3 login. i3 is apt-managed but launches
   rofi/picom/dunst/firefox/emacs by bare name, so those Nix-installed binaries
-  must be on the *graphical session* PATH. If nothing happens, the display
-  manager isn't putting `~/.nix-profile/bin` on PATH — ensure it sources
-  `~/.profile`, or add `export PATH="$HOME/.nix-profile/bin:$PATH"` to
-  `~/.xprofile`.
+  must be on the session PATH. With `startx` this is handled by `~/.xinitrc`,
+  which sources the Nix profile before `exec i3` — so the old display-manager
+  PATH-sanitization footgun is gone. (If you ever return to a DM, ensure it
+  sources `~/.profile`, or add `export PATH="$HOME/.nix-profile/bin:$PATH"`
+  to `~/.xprofile`.)
 
 ### Not automated (manual EVA on a true nuke)
 
@@ -155,6 +167,18 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 - **Pi**: Not in nixpkgs, so it's installed via an npm wrapper script at
   `~/.local/bin/pi`.
+- **No display manager**: boot lands at the tty1 getty login prompt (SDDM is
+  disabled via `just startx`). `.zlogin` (`programs.zsh.loginExtra`) detects
+  tty1 with no `$DISPLAY` and `exec startx`; `~/.xinitrc`
+  (`home.file.".xinitrc"` → `startx/xinitrc`) sources the Nix profile, sets
+  Caps↔Esc, and `exec i3`. `Mod+Shift+e` exits i3 → startx dies → shell dies
+  → back at the login prompt. The chain fires **only on tty1**, so logging
+  into tty2+ for debugging gives a plain shell (your failsafe console).
+- **Suspend lock**: `startx/lock-on-suspend.service` runs `i3lock -c 292b2e`
+  (Spacemacs `bg1`, matching the `$mod+Escape` i3 binding) before `sleep.target`.
+  Installed + enabled by `just startx`. No DM means no auto re-prompt on
+  resume, so this service is what keeps a closed lid locked. There is no
+  auto-lock on manual VT-switch — hit `$mod+Escape` first.
 - **Starship**: Config is supplied as raw TOML via `xdg.configFile`
   (`starship.toml`). The spumone palette (red → white → white → green → green)
   uses colors exclusively from nashamri/spacemacs-theme.

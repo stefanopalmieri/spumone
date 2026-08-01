@@ -1,0 +1,28 @@
+[Unit]
+# Lock the screen before the machine sleeps, so on resume the lock is
+# already up. Used with startx (no display manager to re-prompt on resume).
+#
+# Canonical "lock before sleep" pattern: Before=sleep.target +
+# RequiredBy=sleep.target means sleep waits for this unit to finish
+# starting. i3lock forks after grabbing the display (Type=forking), so the
+# unit reaches "active" the instant the lock screen is shown — then the
+# kernel sleeps with i3lock already on screen. On resume, i3lock is right
+# there waiting for your password.
+Description=Lock screen before suspend (startx, no DM)
+Before=sleep.target
+
+[Service]
+# Run as your user so i3lock can reach your X server + read ~/.Xauthority.
+User=stefano
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=%h/.Xauthority
+Type=forking
+# -c 292b2e = Spacemacs bg1 (near-black). Matches the i3 binding
+# (`$mod+Escape exec i3lock -c 292b2e`) so the lock screen looks identical
+# whether triggered by suspend or the keybinding.
+ExecStart=/usr/bin/i3lock -c 292b2e
+
+[Install]
+# Pulled in automatically on sleep — `systemctl enable` creates the
+# sleep.target.wants symlink from this RequiredBy=.
+RequiredBy=sleep.target

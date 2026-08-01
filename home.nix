@@ -60,7 +60,9 @@
     picom
     dunst
     feh
-    flameshot
+    maim
+    slop     # interactive region selection (used by maim -s)
+    xclip    # clipboard integration for screenshots
     redshift
     unclutter
     arandr
@@ -119,6 +121,16 @@
   # Starship config — spumone powerline theme (raw TOML file)
   # ----------------------------------------------------------------
   xdg.configFile."starship.toml".source = ./starship.toml;
+
+  # ----------------------------------------------------------------
+  # startx entry point (no display manager — see startx/README refs)
+  # ----------------------------------------------------------------
+  # ~/.xinitrc is read by `startx`, which .zlogin auto-launches on tty1
+  # (see programs.zsh.loginExtra). Sources the Nix profile so bare-name
+  # launches (rofi/picom/dunst/emacs) resolve, sets Caps↔Esc early, then
+  # `exec i3`. `force` overwrites the pre-HM manual ~/.xinitrc.
+  home.file.".xinitrc".force = true;
+  home.file.".xinitrc".source = ./startx/xinitrc;
 
   # ----------------------------------------------------------------
   # Zsh configuration (default shell)
@@ -204,6 +216,18 @@
       bindkey -M viins '^N' down-history
     '';
 
+    # Auto-launch i3 via startx on the tty1 login (no display manager).
+    # Fires only on tty1 with no existing X. `exec startx` replaces the
+    # login shell, so when i3 exits (Mod+Shift+e) startx dies, the shell
+    # dies, and you land back at the getty login prompt — a clean loop.
+    # Keeps a real boot password (unlike auto-login), no DM weight, lands
+    # straight in i3. The suspend-lock service handles suspend/lid-close.
+    loginExtra = ''
+      if [[ -z "''${DISPLAY-}" ]] && [[ $(tty) = /dev/tty1 ]]; then
+        exec startx
+      fi
+    '';
+
     # Source Nix profile setup so ~/.nix-profile/bin is on PATH.
     # Multi-user (Determinate) installs use nix-daemon.sh; single-user
     # installs use ~/.nix-profile/etc/profile.d/nix.sh. Handle both.
@@ -236,6 +260,28 @@
   # (Don't symlink a hardcoded /nix/store font path — it silently dangles
   # whenever the nerd-fonts package layout changes.)
   fonts.fontconfig.enable = true;
+
+  # ----------------------------------------------------------------
+  # QTerminal font (Nerd Font for starship powerline glyphs)
+  # Ghostel is the primary terminal, but QTerminal is kept as a
+  # fallback and needs the Nerd Font to render starship correctly.
+  # ----------------------------------------------------------------
+  xdg.configFile."qterminal.org/qterminal.ini".force = true;
+  xdg.configFile."qterminal.org/qterminal.ini".text = ''
+    [General]
+    HideTabBarWithOneTab=false
+    TerminalTransparency=0
+    version=1.4.0
+    fontFamily=SauceCodePro Nerd Font
+    fontSize=14
+    UseFontBoxDrawingChars=false
+
+    [MainWindow]
+    ApplicationTransparency=0
+
+    [Shortcuts]
+    Paste%20Clipboard=Ctrl+Shift+V
+  '';
 
   programs.firefox = {
     enable = true;

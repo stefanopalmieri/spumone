@@ -10,10 +10,12 @@
 default: bootstrap
 
 # Run all post-activation one-offs (sudo primed once; every recipe idempotent).
-bootstrap: _sudo login-shell i3 vterm-deps spacemacs
+# Order matters: login-shell before startx (the auto-startx in .zlogin needs
+# the system zsh as the login shell).
+bootstrap: _sudo login-shell i3 startx vterm-deps spacemacs
     @echo ""
     @echo "✓ bootstrap complete."
-    @echo "  Log out/in for the new login shell + i3 session to take effect."
+    @echo "  Log out/in for the new login shell to take effect."
     @echo "  Then launch Emacs once to install Spacemacs layers (incl. vterm)."
     @echo "  Finally run 'just verify-i3' after your first i3 login."
 
@@ -34,15 +36,43 @@ login-shell:
     echo "login shell set to /usr/bin/zsh"
 
 # Install apt i3 (Home Manager ships the config, not the binary).
+# Used by startx (xinitrc execs `i3`); the /usr/share/xsessions/i3.desktop
+# it also installs is now vestigial — no display manager reads it.
 i3:
     #!/usr/bin/env bash
     set -euo pipefail
     if [ -f /usr/share/xsessions/i3.desktop ]; then
-      echo "i3 session entry already present — skipping"
+      echo "i3 already installed — skipping"
       exit 0
     fi
     sudo apt install -y i3
     ls /usr/share/xsessions/i3.desktop
+
+# Replace the display manager with startx: install the suspend-lock service
+# (so lid-close / suspend locks the screen) and disable SDDM. The actual
+# session launch is ~/.zlogin → startx → ~/.xinitrc → i3 (all managed by
+# Home Manager); this recipe only handles the system-level pieces HM can't.
+startx:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Install + enable the lock-on-suspend service.
+    if [ -f /etc/systemd/system/lock-on-suspend.service ]; then
+      echo "lock-on-suspend.service already installed — skipping"
+    else
+      sudo install -m644 "$(pwd)/startx/lock-on-suspend.service" \
+        /etc/systemd/system/lock-on-suspend.service
+      sudo systemctl daemon-reload
+      echo "lock-on-suspend.service installed"
+    fi
+    sudo systemctl enable lock-on-suspend.service >/dev/null 2>&1 || true
+    echo "lock-on-suspend.service enabled"
+    # Disable SDDM so boot lands at the tty1 login prompt (auto-startx).
+    if systemctl is-enabled sddm >/dev/null 2>&1; then
+      sudo systemctl disable sddm
+      echo "sddm disabled"
+    else
+      echo "sddm already disabled — skipping"
+    fi
 
 # Install C toolchain (build-essential + cmake) + libvterm headers for
 # Spacemacs's vterm layers. We use APT (not Nix) for cmake here because the

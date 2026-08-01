@@ -1,0 +1,27 @@
+#!/bin/sh
+# Spumone Space Program — startx entry point (no display manager)
+#
+# With startx, this file runs under your *login shell's* environment,
+# so ~/.nix-profile/bin is inherited naturally — fixing the bare-name
+# launch footgun (rofi/picom/dunst/emacs) that a display manager's
+# sanitized PATH introduced. Everything else (wallpaper, redshift,
+# unclutter, polkit agent, the purple bar border) is fired by i3/config's
+# `exec --no-startup-id` lines — unchanged.
+#
+# Managed by Home Manager (home.file.".xinitrc"). Do not edit in place;
+# edit startx/xinitrc in the repo and `home-manager switch`.
+
+# Nix user profile so bare-name launches resolve.
+if [ -e "${HOME}/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "${HOME}/.nix-profile/etc/profile.d/nix.sh"
+fi
+export PATH="${HOME}/.nix-profile/bin:${PATH}"
+
+# Caps ↔ Esc early (i3 config also does this via exec_always, but set it
+# before i3 loads so the keyboard is correct from the first keystroke).
+setxkbmap -option caps:swapescape
+
+# Hand off to i3. `exec` replaces this shell, so when i3 exits
+# (Mod+Shift+e / `i3-msg exit`) the X server dies and you land back
+# at the TTY you ran `startx` from.
+exec i3

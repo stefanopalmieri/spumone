@@ -52,7 +52,12 @@ cat <<'EOF' | rofi -dmenu -i -p "i3 Keybindings" -theme spacemacs -theme-str 'wi
   Mod+Shift+r ................. restart i3
   Mod+Shift+x ................. power menu (shutdown / reboot / suspend)
   Mod+x ....................... display / monitor config (arandr)
-  Mod+Print ................... screenshot (flameshot)
+─── SCREENSHOT ────────────────────────
+  PrtSc ....................... full screen → ~/Pictures/Screenshots
+  Mod+p ....................... draw region → ~/Pictures/Screenshots
+  Mod+Shift+p ................. full screen → ~/Pictures/Screenshots
+  Mod+Shift+s ................. draw region → clipboard
+
   Mod+Shift+? ................. this cheat sheet
 
 ─── MEDIA ──────────────────────────────
