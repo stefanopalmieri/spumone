@@ -1,12 +1,15 @@
-{ config, pkgs, ... }:
+{ config, pkgs, username, ... }:
 
 {
-  home.username = "stefano";
-  home.homeDirectory = "/home/stefano";
+  # `username` is injected by flake.nix (mkHome) via extraSpecialArgs so this
+  # module is user-agnostic. The login account must match the flake output
+  # you activate with (e.g. `home-manager switch --flake .#stefano`).
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "24.11";
 
   # Pi's standalone node/bin directory
-  home.sessionPath = [ "/home/stefano/.local/share/pi-node/node-v22.23.1-linux-x64/bin" ];
+  home.sessionPath = [ "${config.home.homeDirectory}/.local/share/pi-node/node-v22.23.1-linux-x64/bin" ];
 
   # ----------------------------------------------------------------
   # Packages

@@ -12,7 +12,7 @@ default: bootstrap
 # Run all post-activation one-offs (sudo primed once; every recipe idempotent).
 # Order matters: login-shell before startx (the auto-startx in .zlogin needs
 # the system zsh as the login shell).
-bootstrap: _sudo login-shell i3 startx vterm-deps spacemacs
+bootstrap: _sudo login-shell i3 xorg audio startx vterm-deps spacemacs
     @echo ""
     @echo "✓ bootstrap complete."
     @echo "  Log out/in for the new login shell to take effect."
@@ -48,24 +48,57 @@ i3:
     sudo apt install -y i3
     ls /usr/share/xsessions/i3.desktop
 
+# X server + xinit + xkb tools. Lubuntu ships these as part of its desktop
+# metapackage; a minimal Debian netinst does not. ~/.xinitrc calls `startx`
+# and `setxkbmap`, so both must be present before the startx flow works.
+# Idempotent: skips if `startx` is already on PATH.
+xorg:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v startx >/dev/null 2>&1; then
+      echo "xorg/xinit already installed — skipping"
+      exit 0
+    fi
+    sudo apt install -y xorg xinit x11-xkb-utils
+
+# PipeWire audio stack. Lubuntu ships pipewire + wireplumber, so `wpctl`
+# (which the i3 volume/mute keys call) works out of the box; a minimal
+# Debian netinst does not. `pipewire-audio` is Debian's metapackage pulling
+# in pipewire + wireplumber + pipewire-pulse + pipewire-alsa. `wpctl` itself
+# ships from `wireplumber`, so we guard on it for idempotency.
+# The user services are D-Bus / systemd-user activated; enabling them here
+# means they come up with the user session on the next login (startx runs
+# under the login shell, which already has a user manager from logind).
+audio:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v wpctl >/dev/null 2>&1; then
+      echo "pipewire/wireplumber already installed (wpctl present) — skipping"
+      exit 0
+    fi
+    sudo apt install -y pipewire-audio
+    systemctl --user enable pipewire pipewire-pulse wireplumber >/dev/null 2>&1 || true
+    echo "pipewire-audio installed + user services enabled"
+
 # Replace the display manager with startx: install the suspend-lock service
 # (so lid-close / suspend locks the screen) and disable SDDM. The actual
 # session launch is ~/.zlogin → startx → ~/.xinitrc → i3 (all managed by
 # Home Manager); this recipe only handles the system-level pieces HM can't.
+# On a minimal Debian install there is no SDDM to disable — the `is-enabled`
+# check no-ops cleanly, so the recipe is safe on both.
 startx:
     #!/usr/bin/env bash
     set -euo pipefail
-    # Install + enable the lock-on-suspend service.
-    if [ -f /etc/systemd/system/lock-on-suspend.service ]; then
-      echo "lock-on-suspend.service already installed — skipping"
-    else
-      sudo install -m644 "$(pwd)/startx/lock-on-suspend.service" \
-        /etc/systemd/system/lock-on-suspend.service
-      sudo systemctl daemon-reload
-      echo "lock-on-suspend.service installed"
-    fi
+    # Install + enable the lock-on-suspend service, substituting the current
+    # user into the template (User=__USER__) so the unit is never pinned to a
+    # hardcoded account. Always regenerate — an existing wrong-user install
+    # gets fixed on the next run, and `tee`/`chmod` are idempotent.
+    sed "s/__USER__/$USER/" "$(pwd)/startx/lock-on-suspend.service" \
+      | sudo tee /etc/systemd/system/lock-on-suspend.service >/dev/null
+    sudo chmod 644 /etc/systemd/system/lock-on-suspend.service
+    sudo systemctl daemon-reload
     sudo systemctl enable lock-on-suspend.service >/dev/null 2>&1 || true
-    echo "lock-on-suspend.service enabled"
+    echo "lock-on-suspend.service installed + enabled (User=$USER)"
     # Disable SDDM so boot lands at the tty1 login prompt (auto-startx).
     if systemctl is-enabled sddm >/dev/null 2>&1; then
       sudo systemctl disable sddm
@@ -97,12 +130,18 @@ spacemacs:
 
 # Print manual post-login checks to run after your first i3 login.
 verify-i3:
-    @echo "After logging into the i3 session, verify:"
+    @echo "After logging into the i3 session (startx from tty1), verify:"
     @echo "  - \$mod+d opens the rofi app launcher"
     @echo "  - \$mod+b opens firefox"
-    @echo "  - \$mod+Return opens a terminal"
+    @echo "  - \$mod+Return opens a terminal (emacs vterm)"
+    @echo "  - volume / mute keys work (wpctl — needs `just audio` first)"
     @echo ""
-    @echo "If nothing happens, the display manager isn't putting"
-    @echo "~/.nix-profile/bin on the graphical PATH."
-    @echo "Ensure it sources ~/.profile, or add to ~/.xprofile:"
-    @echo '  export PATH="$HOME/.nix-profile/bin:$PATH"'
+    @echo "If bare-name launches (rofi/firefox/emacs) fail, ~/.xinitrc"
+    @echo "isn't putting ~/.nix-profile/bin on PATH. It sources"
+    @echo "~/.nix-profile/etc/profile.d/nix.sh before `exec i3`;"
+    @echo "check that the profile exists and that line ran."
+    @echo "(This is the startx path — there is no display manager to"
+    @echo "sanitize PATH, and ~/.xprofile is not read.)"
+    @echo ""
+    @echo "If volume keys do nothing, the PipeWire stack is missing —"
+    @echo "run `just audio`."

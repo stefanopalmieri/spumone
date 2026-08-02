@@ -24,6 +24,45 @@ magenta `#bc6ec5`, on a near-black `#292b2e` cone. Ghostly terminals
 flicker in the purple glow — ghostel channels the specter of Ghostty's VT
 engine from beyond the veil.
 
+## Flying Debian instead of Lubuntu
+
+This config is distro-agnostic by design — Nix owns user-space, apt owns a
+handful of system binaries, and the Justfile glues them. It reconstitutes on
+Debian with essentially no logic changes. The deltas:
+
+- **Skip the desktop task.** A minimal Debian netinst has no LXQt/SDDM, so
+  there's nothing to disable — `just startx`'s SDDM check no-ops cleanly, and
+  boot lands at the tty1 getty prompt by default.
+- **Install X yourself.** Lubuntu ships `xorg`/`xinit`/`xkb-utils` via its
+  desktop metapackage; Debian minimal does not. `just xorg` (run before
+  `startx`) installs `xorg xinit x11-xkb-utils` — needed by `~/.xinitrc`
+  (`startx`, `setxkbmap`).
+- **Network + polkit + audio.** A minimal Debian may ship plain `ifupdown`
+  instead of NetworkManager; won't have `policykit-1-gnome` (the i3 config
+  launches `/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1` —
+  same path on Debian); and won't ship PipeWire (the i3 volume/mute keys call
+  `wpctl`, which comes from the `wireplumber` package). Install what you
+  want: `sudo apt install network-manager policykit-1-gnome` for the tray
+  applet + polkit prompts, and `just audio` (installs the `pipewire-audio`
+  metapackage and enables the user services) for working volume keys. `audio`
+  is part of `bootstrap`, so the sound stack is covered automatically;
+  `network-manager` / `policykit-1-gnome` remain optional manual installs.
+- **Same apt names.** `zsh`, `i3`, `build-essential`, `cmake`, `libvterm-dev`
+  are identical on Debian — no recipe edits needed.
+- **Core 2 Duo SIGILL workaround stays.** The Nix-`cmake`→librhash→SSE4.1
+  `pinsrd` crash is CPU-arch-specific, not distro-specific. Keep using apt
+  `cmake` via `just vterm-deps`.
+- **Username is parametric.** `home.nix` no longer hardcodes a user —
+  `username` is threaded in from `flake.nix` via `extraSpecialArgs`, so the
+  same module works for any account. To fly under a different callsign, add
+  one line (`homeConfigurations.bob = mkHome "bob";`) and activate with
+  `--flake .#bob`. The lock-on-suspend service templates `User=__USER__`,
+  substituted by `just startx` from `$USER` — no per-user edits needed.
+
+So the Debian pre-flight is the Lubuntu one plus `just xorg` and `just audio`
+(both already in `bootstrap`) and the optional `network-manager` /
+`policykit-1-gnome` apt installs.
+
 ## Pre-flight checklist (fresh Lubuntu install)
 
 This repo is a **Nix flake** — no channels needed. It pins `nixpkgs-unstable`
@@ -31,11 +70,17 @@ and `home-manager` master in `flake.lock`, so every capsule gets the same
 freeze-dried packages. Nix itself installs **multi-user** via the Determinate
 Systems installer (systemd `nix-daemon`, flakes enabled by default).
 
-> **Crew manifest is pinned to `stefano`.** `home.nix` hardcodes
-> `home.username = "stefano"` / `home.homeDirectory = "/home/stefano"` and
-> `flake.nix` exposes `homeConfigurations.stefano`. The fresh-install account
-> must be `stefano` or activation aborts. Flying under a different callsign?
-> Update both files first.
+> **Crew manifest is parametric.** `home.nix` is user-agnostic — it takes
+> `username` via `extraSpecialArgs` from `flake.nix`'s `mkHome` helper. The
+> flake exposes `homeConfigurations.stefano = mkHome "stefano"`; activate with
+> `home-manager switch --flake .#stefano` (or just `--flake .` when run as
+> `stefano`, since home-manager defaults the config name to `$USER`). Flying
+> under a different callsign? Add `homeConfigurations.<name> = mkHome
+> "<name>";` to `flake.nix` — the home module, the lock-on-suspend service
+> (via `just startx`), and `home.sessionPath` all pick up the new user with no
+> further edits. (Named outputs rather than `$USER` at eval time because pure
+> flake evaluation can't read the environment — `builtins.getEnv "USER"`
+> returns empty without `--impure`, which we don't want to require.)
 
 ### 1. Install Nix (Determinate, multi-user)
 
@@ -146,14 +191,15 @@ run `just verify-i3` after your first i3 login. The commands live in the
   first run Spacemacs reads `~/.spacemacs`, installs the declared layers, and
   regenerates `~/.emacs.d` from there on.
 - **`verify-i3`** — manual post-login checks (can't be automated): confirm
-  `$mod+d` (rofi), `$mod+b` (firefox), and `$mod+Return` (terminal) actually
-  open after your first i3 login. i3 is apt-managed but launches
-  rofi/picom/dunst/firefox/emacs by bare name, so those Nix-installed binaries
-  must be on the session PATH. With `startx` this is handled by `~/.xinitrc`,
-  which sources the Nix profile before `exec i3` — so the old display-manager
-  PATH-sanitization footgun is gone. (If you ever return to a DM, ensure it
-  sources `~/.profile`, or add `export PATH="$HOME/.nix-profile/bin:$PATH"`
-  to `~/.xprofile`.)
+  `$mod+d` (rofi), `$mod+b` (firefox), `$mod+Return` (terminal/emacs vterm),
+  and the volume/mute keys actually work after your first i3 login. i3 is
+  apt-managed but launches rofi/picom/dunst/firefox/emacs by bare name, so
+  those Nix-installed binaries must be on the session PATH. With `startx`
+  this is handled by `~/.xinitrc`, which sources the Nix profile before
+  `exec i3` — so the old display-manager PATH-sanitization footgun is gone.
+  If bare-name launches fail, check that `~/.xinitrc`'s
+  `~/.nix-profile/etc/profile.d/nix.sh` line ran (there is no DM and
+  `~/.xprofile` is not read). If volume keys do nothing, run `just audio`.
 
 ### Not automated (manual EVA on a true nuke)
 
@@ -182,7 +228,6 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **Starship**: Config is supplied as raw TOML via `xdg.configFile`
   (`starship.toml`). The spumone palette (red → white → white → green → green)
   uses colors exclusively from nashamri/spacemacs-theme.
-- **NUR**: no longer used; the `nur` channel is not required.
 - **Spacemacs layers**: emacs-lisp, helm, multiple-cursors, shell (vterm),
   treemacs, ghostel.
 - **Embrace the Evil**: `evil-ghostel` gives you `dd`, `ciw`, and `p` inside
@@ -210,9 +255,6 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 ## Extra scoops to add
 
-### Already aboard
-- **rofi-emoji** — emoji picker bound to `$mod+period`.
-
 ### Development
 - **direnv** — load per-project environment variables automatically. Great
   for nix-shell or per-project tool versions. `programs.direnv.enable = true;`
@@ -223,13 +265,6 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **lazygit** — terminal UI for git. `programs.lazygit.enable = true;`
 - **tmux** — terminal multiplexer, pairs well with emacs.
   `programs.tmux.enable = true;`
-
-### System tools
-- **alacritty** or **wezterm** — GPU-accelerated terminal emulators.
-  `programs.alacritty.enable = true;`
-- **fish** — alternative shell with better defaults.
-  `programs.fish.enable = true;`
-- **btop** — modern system monitor (better htop). Add to `home.packages`.
 
 ### Emacs enhancements
 - **emacs-overlay** — nix-community's Emacs overlay for bleeding-edge
@@ -258,4 +293,4 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 ---
 
-*Buon volo. May your gelato stay freeze-dried and your bar border stay purple.*
+*Buon volo*

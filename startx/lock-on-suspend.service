@@ -13,7 +13,9 @@ Before=sleep.target
 
 [Service]
 # Run as your user so i3lock can reach your X server + read ~/.Xauthority.
-User=stefano
+# `__USER__` is substituted at install time by `just startx` (see Justfile),
+# so the unit is never pinned to a hardcoded account.
+User=__USER__
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=%h/.Xauthority
 Type=forking
