@@ -81,6 +81,22 @@ Systems installer (systemd `nix-daemon`, flakes enabled by default).
 > further edits. (Named outputs rather than `$USER` at eval time because pure
 > flake evaluation can't read the environment — `builtins.getEnv "USER"`
 > returns empty without `--impure`, which we don't want to require.)
+>
+> **Host-specific tweaks via per-host outputs.** `mkHome` takes a `lowres`
+> flag (threaded in as `extraSpecialArgs.lowres`) that opts into tweaks for
+> low-resolution panels. Pure flake eval can't read the hostname, so each
+> host gets its own named output rather than auto-detecting at eval time.
+> Currently:
+>
+> - `homeConfigurations.stefano` — base config, no low-res tweaks.
+> - `homeConfigurations.stefano-x61` — base + `i3/lowres-x61.conf`, which caps
+>   floating windows to `1000 x 700` and centers dialogs so the file-chooser
+>   / print dialogs fit the ThinkPad X61's 1024×768 panel.
+>
+> Activate on the X61 with `home-manager switch --flake .#stefano-x61`; on
+> higher-res hosts keep using `.#stefano` and the cap won't apply. To support
+> another low-res host, add `homeConfigurations.<name> = mkHome "<name>" true;`
+> to `flake.nix`.
 
 ### 1. Install Nix (Determinate, multi-user)
 
