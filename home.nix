@@ -1,4 +1,4 @@
-{ config, pkgs, username, ... }:
+{ config, pkgs, username, lowres, ... }:
 
 {
   # `username` is injected by flake.nix (mkHome) via extraSpecialArgs so this
@@ -296,7 +296,13 @@
   # i3 window manager config (system i3 on Lubuntu)
   # ----------------------------------------------------------------
   xdg.configFile."i3/config".force = true;
-  xdg.configFile."i3/config".source = ./i3/config;
+  # The base config is the raw ./i3/config file; on low-res hosts (X61) we
+  # append i3/lowres-x61.conf (floating-window size cap + centered dialogs)
+ # so dialogs fit a 1024x768 panel.  `lowres` is threaded in from flake.nix
+  # via extraSpecialArgs.
+  xdg.configFile."i3/config".text =
+    builtins.readFile ./i3/config
+    + pkgs.lib.optionalString lowres (builtins.readFile ./i3/lowres-x61.conf + "\n");
   xdg.configFile."i3/scripts/power-menu.sh".force = true;
   xdg.configFile."i3/scripts/power-menu.sh".source = ./i3/scripts/power-menu.sh;
   xdg.configFile."i3/scripts/cheatsheet.sh".force = true;
