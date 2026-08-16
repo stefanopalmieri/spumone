@@ -1,4 +1,4 @@
-{ config, pkgs, username, lowres, ... }:
+{ config, pkgs, username, host, ... }:
 
 {
   # `username` is injected by flake.nix (mkHome) via extraSpecialArgs so this
@@ -296,13 +296,19 @@
   # i3 window manager config (system i3 on Lubuntu)
   # ----------------------------------------------------------------
   xdg.configFile."i3/config".force = true;
-  # The base config is the raw ./i3/config file; on low-res hosts (X61) we
-  # append i3/lowres-x61.conf (floating-window size cap + centered dialogs)
- # so dialogs fit a 1024x768 panel.  `lowres` is threaded in from flake.nix
-  # via extraSpecialArgs.
+  # The base config is the raw ./i3/config file; host-specific tweak
+  # snippets are appended based on the `host` attrset (threaded in
+  # from flake.nix via extraSpecialArgs).  Each trait maps to a snippet:
+  # currently `host.lowres` -> i3/lowres.conf (floating-window size cap
+  # + centered dialogs for sub-HD panels, e.g. the X61's 1024x768).
+  #
+  # Gotcha: builtins.readFile is resolved at pure-flake eval time, so
+  # any new snippet file must be `git add`-ed before `home-manager switch`
+  # can see it (an untracked file is invisible to the evaluator).
   xdg.configFile."i3/config".text =
     builtins.readFile ./i3/config
-    + pkgs.lib.optionalString lowres (builtins.readFile ./i3/lowres-x61.conf + "\n");
+    + pkgs.lib.optionalString (host.lowres or false)
+        (builtins.readFile ./i3/lowres.conf + "\n");
   xdg.configFile."i3/scripts/power-menu.sh".force = true;
   xdg.configFile."i3/scripts/power-menu.sh".source = ./i3/scripts/power-menu.sh;
   xdg.configFile."i3/scripts/cheatsheet.sh".force = true;

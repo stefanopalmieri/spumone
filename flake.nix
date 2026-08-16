@@ -17,25 +17,30 @@
       # Build a Home Manager configuration for a given username. The username
       # is threaded into home.nix via extraSpecialArgs so the module itself
       # stays user-agnostic. To fly under a different callsign, add another
-      # output (e.g. `homeConfigurations.bob = mkHome "bob" false;`) and
-      # activate with `home-manager switch --flake .#bob`. Named after the
-      # crew member rather than read from the environment because pure flake
-      # eval can't see $USER (and we don't want to require --impure).
+      # output (e.g. `homeConfigurations.bob = mkHome "bob" {};`) and activate
+      # with `home-manager switch --flake .#bob`. Named after the crew member
+      # rather than read from the environment because pure flake eval can't
+      # see $USER (and we don't want to require --impure).
       #
-      # The second argument, `lowres`, opts into machine-specific tweaks for
-      # low-resolution panels (e.g. the ThinkPad X61's 1024x768 LVDS) — see
-      # i3/lowres-x61.conf. We can't auto-detect the host during pure flake
-      # eval, so each host gets its own named output instead.
-      mkHome = username: lowres:
+      # The second argument, `host`, is an attrset of host-specific traits
+      # (e.g. `{ lowres = true; }`) threaded into home.nix as `extraSpecialArgs.host`.
+      # Each trait maps to a tweak snippet — currently `lowres` appends
+      # i3/lowres.conf (a floating-window size cap + centered dialogs for
+      # sub-HD panels). We can't auto-detect the host during pure flake eval,
+      # so each host gets its own named output instead. An attrset (rather
+      # than a boolean) ages better: a future `hidpi`, `mobile`, etc. trait
+      # is just another key + another snippet, with no new output plumbing.
+      mkHome = username: host:
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [ ./home.nix ];
-          extraSpecialArgs = { inherit username lowres; };
+          extraSpecialArgs = { inherit username host; };
         };
     in {
-      homeConfigurations.stefano     = mkHome "stefano" false;
-      # ThinkPad X61 (1024x768): enables i3/lowres-x61.conf (floating-window
-      # size cap + centered dialogs) so file chooser / print dialogs fit.
-      homeConfigurations.stefano-x61 = mkHome "stefano" true;
+      homeConfigurations.stefano     = mkHome "stefano" {};
+      # ThinkPad X61 (1024x768): opts into the `lowres` trait, which appends
+      # i3/lowres.conf (floating-window size cap + centered dialogs) so
+      # file chooser / print dialogs fit the panel.
+      homeConfigurations.stefano-x61 = mkHome "stefano" { lowres = true; };
     };
 }

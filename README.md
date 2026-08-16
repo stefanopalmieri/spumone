@@ -82,21 +82,31 @@ Systems installer (systemd `nix-daemon`, flakes enabled by default).
 > flake evaluation can't read the environment — `builtins.getEnv "USER"`
 > returns empty without `--impure`, which we don't want to require.)
 >
-> **Host-specific tweaks via per-host outputs.** `mkHome` takes a `lowres`
-> flag (threaded in as `extraSpecialArgs.lowres`) that opts into tweaks for
-> low-resolution panels. Pure flake eval can't read the hostname, so each
+> **Host-specific tweaks via per-host outputs.** `mkHome` takes a `host`
+> attrset of traits (threaded in as `extraSpecialArgs.host`) that opts into
+> machine-specific tweaks. Pure flake eval can't read the hostname, so each
 > host gets its own named output rather than auto-detecting at eval time.
-> Currently:
+> An attrset (rather than a boolean flag) ages better — adding a new trait
+> is just a new key + snippet, with no new output plumbing. Each trait maps
+> to a tweak snippet appended to the base i3 config. Currently:
 >
-> - `homeConfigurations.stefano` — base config, no low-res tweaks.
-> - `homeConfigurations.stefano-x61` — base + `i3/lowres-x61.conf`, which caps
->   floating windows to `1000 x 700` and centers dialogs so the file-chooser
+> - `homeConfigurations.stefano` — base config (`mkHome "stefano" {}`).
+> - `homeConfigurations.stefano-x61` — base + the `lowres` trait
+>   (`mkHome "stefano" { lowres = true; }`), which appends `i3/lowres.conf`
+>   (`floating_maximum_size 1000 x 700` + centered dialogs) so file-chooser
 >   / print dialogs fit the ThinkPad X61's 1024×768 panel.
 >
 > Activate on the X61 with `home-manager switch --flake .#stefano-x61`; on
 > higher-res hosts keep using `.#stefano` and the cap won't apply. To support
-> another low-res host, add `homeConfigurations.<name> = mkHome "<name>" true;`
-> to `flake.nix`.
+> another host, add `homeConfigurations.<name> = mkHome "<name>" { ... };` to
+> `flake.nix` with the relevant traits. To add a new trait, add a key to the
+> `host` attrset and a matching `optionalString` + snippet file in
+> `home.nix` (e.g. `host.hidpi` → `i3/hidpi.conf`).
+>
+> Note: snippet files are read at pure-flake eval time via
+> `builtins.readFile`, so any *new* snippet file must be `git add`-ed before
+> `home-manager switch` can see it (an untracked file is invisible to the
+> evaluator).
 
 ### 1. Install Nix (Determinate, multi-user)
 
