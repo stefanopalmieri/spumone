@@ -183,7 +183,7 @@ bindsym $mod+period exec rofi -show emoji -modi emoji
 bindsym $mod+n exec pcmanfm
 
 # Browser
-bindsym $mod+b exec firefox
+bindsym $mod+b exec chromium
 
 # Emacs
 bindsym $mod+m exec emacs
@@ -313,7 +313,6 @@ for_window [window_role="dialog"] floating enable
 for_window [window_role="task_dialog"] floating enable
 
 # Assign apps to workspaces
-assign [class="firefox"] $ws2
 assign [class="Chromium"] $ws2
 # Terminal (emacsclient with --name vterm) lands on ws1
 for_window [instance="vterm"] move to workspace $ws1

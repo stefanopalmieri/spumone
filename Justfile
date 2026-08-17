@@ -132,11 +132,11 @@ spacemacs:
 verify-i3:
     @echo "After logging into the i3 session (startx from tty1), verify:"
     @echo "  - \$mod+d opens the rofi app launcher"
-    @echo "  - \$mod+b opens firefox"
+    @echo "  - \$mod+b opens chromium"
     @echo "  - \$mod+Return opens a terminal (emacs vterm)"
     @echo "  - volume / mute keys work (wpctl — needs `just audio` first)"
     @echo ""
-    @echo "If bare-name launches (rofi/firefox/emacs) fail, ~/.xinitrc"
+    @echo "If bare-name launches (rofi/chromium/emacs) fail, ~/.xinitrc"
     @echo "isn't putting ~/.nix-profile/bin on PATH. It sources"
     @echo "~/.nix-profile/etc/profile.d/nix.sh before `exec i3`;"
     @echo "check that the profile exists and that line ran."

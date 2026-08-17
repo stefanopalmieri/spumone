@@ -14,7 +14,7 @@ reconstitute on any fresh Lubuntu install.
 - **Onboard AI**: Pi coding agent (npm wrapper)
 - **Helmet HUD**: Starship prompt, spumone powerline theme
 - **Alignment**: Chaotic Evil. `hjkl` or die.
-- **Viewport**: Firefox + Vimium
+- **Viewport**: Chromium
 - **Launch**: `startx` from tty1 — no display manager. `.zlogin`
   auto-fires `startx` on login (one password, lands straight in i3);
   `~/.xinitrc` sources the Nix profile and `exec i3`.
@@ -182,7 +182,7 @@ run `just verify-i3` after your first i3 login. The commands live in the
   fresh Lubuntu install i3 is absent, so this lands `/usr/bin/i3` (plus a
   vestigial `/usr/share/xsessions/i3.desktop` that no display manager reads
   anymore — startx doesn't use xsessions). i3's config launches
-  rofi/picom/dunst/firefox/emacs by bare name — see `verify-i3` if any hatch
+  rofi/picom/dunst/chromium/emacs by bare name — see `verify-i3` if any hatch
   fails to open.
 - **`startx`** — replaces the display manager with a `startx` flow:
   installs + enables `startx/lock-on-suspend.service` (so suspend / lid-close
@@ -217,9 +217,9 @@ run `just verify-i3` after your first i3 login. The commands live in the
   first run Spacemacs reads `~/.spacemacs`, installs the declared layers, and
   regenerates `~/.emacs.d` from there on.
 - **`verify-i3`** — manual post-login checks (can't be automated): confirm
-  `$mod+d` (rofi), `$mod+b` (firefox), `$mod+Return` (terminal/emacs vterm),
+  `$mod+d` (rofi), `$mod+b` (chromium), `$mod+Return` (terminal/emacs vterm),
   and the volume/mute keys actually work after your first i3 login. i3 is
-  apt-managed but launches rofi/picom/dunst/firefox/emacs by bare name, so
+  apt-managed but launches rofi/picom/dunst/chromium/emacs by bare name, so
   those Nix-installed binaries must be on the session PATH. With `startx`
   this is handled by `~/.xinitrc`, which sources the Nix profile before
   `exec i3` — so the old display-manager PATH-sanitization footgun is gone.

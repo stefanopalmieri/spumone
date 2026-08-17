@@ -72,6 +72,7 @@
     pcmanfm
     playerctl
     brightnessctl
+    chromium
     i3lock
     i3status
 
@@ -286,10 +287,19 @@
     Paste%20Clipboard=Ctrl+Shift+V
   '';
 
-  programs.firefox = {
-    enable = true;
-    # Keep legacy profile path (silences configPath deprecation warning)
-    configPath = ".mozilla/firefox";
+  # Default browser (Chromium) — replaces Firefox for all web links
+  xdg.mime.defaultApplications = {
+    "text/html" = "chromium.desktop";
+    "text/xml" = "chromium.desktop";
+    "application/xhtml+xml" = "chromium.desktop";
+    "application/xml" = "chromium.desktop";
+    "application/rss+xml" = "chromium.desktop";
+    "application/rdf+xml" = "chromium.desktop";
+    "x-scheme-handler/http" = "chromium.desktop";
+    "x-scheme-handler/https" = "chromium.desktop";
+    "x-scheme-handler/ftp" = "chromium.desktop";
+    "x-scheme-handler/about" = "chromium.desktop";
+    "x-scheme-handler/unknown" = "chromium.desktop";
   };
 
   # ----------------------------------------------------------------
