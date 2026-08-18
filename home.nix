@@ -74,6 +74,7 @@
     brightnessctl
     chromium
     i3lock
+    sakura
     i3status
 
 
@@ -287,8 +288,33 @@
     Paste%20Clipboard=Ctrl+Shift+V
   '';
 
+  # ----------------------------------------------------------------
+  # Sakura terminal config (lightweight GTK3 terminal)
+  # ----------------------------------------------------------------
+  xdg.configFile."sakura/sakura.conf" = {
+    force = true;
+    text = ''
+    [sakura]
+    font=SauceCodePro Nerd Font 13
+    show_tab_bar=multiple
+    scroll_lines=4096
+    scrollbar=false
+    closebutton=false
+    tabs_on_bottom=false
+    copy_on_select=false
+    scrollable_tabs=true
+    bold_is_bright=false
+    use_fading=false
+    less_questions=false
+    disable_numbered_tabswitch=false
+    palette=1
+    window_columns=80
+    window_rows=24
+    '';
+  };
+
   # Default browser (Chromium) — replaces Firefox for all web links
-  xdg.mime.defaultApplications = {
+  xdg.mimeApps.defaultApplications = {
     "text/html" = "chromium.desktop";
     "text/xml" = "chromium.desktop";
     "application/xhtml+xml" = "chromium.desktop";

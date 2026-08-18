@@ -135,16 +135,9 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
-# ============================================================
-# Gaps
-# ============================================================
-# Inner gaps = space between adjacent windows
-gaps inner 4
-
-# Outer gaps = space between windows and screen edge
-gaps outer 2
-
-# Only enable gaps when more than one container exists
+# Gaps — zero everywhere
+gaps inner 0
+gaps outer 0
 smart_gaps on
 
 # Hide edge borders when only one window
