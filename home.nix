@@ -8,8 +8,13 @@
   home.homeDirectory = "/home/${username}";
   home.stateVersion = "24.11";
 
-  # Pi's standalone node/bin directory
-  home.sessionPath = [ "${config.home.homeDirectory}/.local/share/pi-node/node-v22.23.1-linux-x64/bin" ];
+  # Pi's standalone node/bin directory + ~/.local/bin (the pi wrapper lives
+  # there; bash gets it from Debian's ~/.profile, but zsh — the login shell
+  # and thus the whole GUI session — reads no .profile, so declare it).
+  home.sessionPath = [
+    "${config.home.homeDirectory}/.local/bin"
+    "${config.home.homeDirectory}/.local/share/pi-node/node-v22.23.1-linux-x64/bin"
+  ];
 
   # ----------------------------------------------------------------
   # Packages
