@@ -1,15 +1,16 @@
-# Spumone Space Program — Reproducible Lubuntu + Pi via Nix + Home Manager
+# Spumone Space Program — Reproducible Debian + Pi via Nix + Home Manager
 
 Welcome aboard the **Spumone Space Program**.
 
-This repository freeze-dries a complete Lubuntu workstation into a portable,
+This repository freeze-dries a complete Debian workstation into a portable,
 reproducible Home Manager flake. Think of it as astronaut ice cream: all the
 flavor of a hand-tuned desktop, stripped of moisture and mystery, ready to
-reconstitute on any fresh Lubuntu install.
+reconstitute on any fresh Debian netinst.
 
 ## Flavor profile
 
-- **Base**: Lubuntu (LXQt)
+- **Base**: Debian 13 "trixie" netinst — minimal, no desktop task, no
+  display manager (12 "bookworm" works too)
 - **Mission control**: Emacs 30 + Spacemacs, evil-mode (vim-style), with vterm + ghostel terminals
 - **Onboard AI**: Pi coding agent (npm wrapper)
 - **Helmet HUD**: Starship prompt, spumone powerline theme
@@ -24,46 +25,23 @@ magenta `#bc6ec5`, on a near-black `#292b2e` cone. Ghostly terminals
 flicker in the purple glow — ghostel channels the specter of Ghostty's VT
 engine from beyond the veil.
 
-## Flying Debian instead of Lubuntu
+## Coming from Lubuntu?
 
-This config is distro-agnostic by design — Nix owns user-space, apt owns a
-handful of system binaries, and the Justfile glues them. It reconstitutes on
-Debian with essentially no logic changes. The deltas:
+The base used to be Lubuntu; it is now plain Debian. Nothing
+Lubuntu-specific remains: the apt names (`zsh`, `i3`, `build-essential`,
+`cmake`, `libvterm-dev`) are identical, and `just bootstrap` installs
+everything a minimal netinst lacks — X (`just xorg`), a polkit agent
+(`just polkit`) and PipeWire (`just audio`). The Core 2 Duo SIGILL
+workaround (apt `cmake` via `just vterm-deps`) is CPU-specific, not
+distro-specific, and stays; so does the parametric `username` threading
+(`home.nix` ← `flake.nix extraSpecialArgs`).
 
-- **Skip the desktop task.** A minimal Debian netinst has no LXQt/SDDM, so
-  there's nothing to disable — `just startx`'s SDDM check no-ops cleanly, and
-  boot lands at the tty1 getty prompt by default.
-- **Install X yourself.** Lubuntu ships `xorg`/`xinit`/`xkb-utils` via its
-  desktop metapackage; Debian minimal does not. `just xorg` (run before
-  `startx`) installs `xorg xinit x11-xkb-utils` — needed by `~/.xinitrc`
-  (`startx`, `setxkbmap`).
-- **Network + polkit + audio.** A minimal Debian may ship plain `ifupdown`
-  instead of NetworkManager; won't have `policykit-1-gnome` (the i3 config
-  launches `/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1` —
-  same path on Debian); and won't ship PipeWire (the i3 volume/mute keys call
-  `wpctl`, which comes from the `wireplumber` package). Install what you
-  want: `sudo apt install network-manager policykit-1-gnome` for the tray
-  applet + polkit prompts, and `just audio` (installs the `pipewire-audio`
-  metapackage and enables the user services) for working volume keys. `audio`
-  is part of `bootstrap`, so the sound stack is covered automatically;
-  `network-manager` / `policykit-1-gnome` remain optional manual installs.
-- **Same apt names.** `zsh`, `i3`, `build-essential`, `cmake`, `libvterm-dev`
-  are identical on Debian — no recipe edits needed.
-- **Core 2 Duo SIGILL workaround stays.** The Nix-`cmake`→librhash→SSE4.1
-  `pinsrd` crash is CPU-arch-specific, not distro-specific. Keep using apt
-  `cmake` via `just vterm-deps`.
-- **Username is parametric.** `home.nix` no longer hardcodes a user —
-  `username` is threaded in from `flake.nix` via `extraSpecialArgs`, so the
-  same module works for any account. To fly under a different callsign, add
-  one line (`homeConfigurations.bob = mkHome "bob";`) and activate with
-  `--flake .#bob`. The lock-on-suspend service templates `User=__USER__`,
-  substituted by `just startx` from `$USER` — no per-user edits needed.
+Reconstituting onto an *existing* Lubuntu instead? Every recipe no-ops
+cleanly: Lubuntu already ships X, PipeWire and a polkit agent (each guard
+checks for its binary), and `just startx`'s SDDM check simply finds the DM
+and disables it.
 
-So the Debian pre-flight is the Lubuntu one plus `just xorg` and `just audio`
-(both already in `bootstrap`) and the optional `network-manager` /
-`policykit-1-gnome` apt installs.
-
-## Pre-flight checklist (fresh Lubuntu install)
+## Pre-flight checklist (fresh Debian netinst)
 
 This repo is a **Nix flake** — no channels needed. It pins `nixpkgs-unstable`
 and `home-manager` master in `flake.lock`, so every capsule gets the same
@@ -107,6 +85,21 @@ Systems installer (systemd `nix-daemon`, flakes enabled by default).
 > `builtins.readFile`, so any *new* snippet file must be `git add`-ed before
 > `home-manager switch` can see it (an untracked file is invisible to the
 > evaluator).
+
+### 0. Base system (Debian 13 "trixie" netinst)
+
+Minimal install — no desktop task, no display manager; boot must land at the
+tty1 login prompt. Two installer gotchas:
+
+- **Leave the root password empty** when creating your user. That is
+  Debian's convention for "install `sudo`, add my user to the `sudo`
+  group"; with a root password set, no sudo gets configured and every
+  `just` recipe that pipes through sudo stalls. (Already set one? From a
+  root shell: `apt install sudo && usermod -aG sudo $USER`, re-login.)
+- **Nonfree firmware for wifi.** Bookworm-era and later installers can
+  include closed-source firmware — tick that option, or have
+  `firmware-iwlwifi` / `firmware-realtek` (as applicable) on a second
+  medium.
 
 ### 1. Install Nix (Determinate, multi-user)
 
@@ -179,11 +172,22 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **`i3`** — installs apt i3. Home Manager ships i3's *config*
   (`~/.config/i3/config`), the i3status config, and the rofi theme, but **not
   the `i3` binary**. The binary is needed by `~/.xinitrc` (`exec i3`). On a
-  fresh Lubuntu install i3 is absent, so this lands `/usr/bin/i3` (plus a
+  fresh install i3 is absent, so this lands `/usr/bin/i3` (plus a
   vestigial `/usr/share/xsessions/i3.desktop` that no display manager reads
   anymore — startx doesn't use xsessions). i3's config launches
   rofi/picom/dunst/chromium/emacs by bare name — see `verify-i3` if any hatch
   fails to open.
+- **`xorg`** — the X server, `xinit` and xkb tools. A minimal Debian netinst
+  has no desktop task to ship them; `~/.xinitrc` needs `startx` and
+  `setxkbmap` (from `x11-xkb-utils`).
+- **`polkit`** — a polkit authentication agent, so privileged actions pop a
+  GUI password dialog instead of failing silently. Debian 12 ships
+  `policykit-1-gnome`; trixie dropped it, so the recipe falls back to
+  `lxpolkit`. The i3 config no longer hardcodes an agent path — it execs
+  `~/.config/i3/scripts/polkit-agent.sh`, which probes the usual locations.
+- **`audio`** — the PipeWire stack (`pipewire-audio` = pipewire +
+  wireplumber + pipewire-pulse/alsa) plus the systemd user services, so the
+  i3 volume/mute keys (`wpctl`) work. A minimal netinst has no sound server.
 - **`startx`** — replaces the display manager with a `startx` flow:
   installs + enables `startx/lock-on-suspend.service` (so suspend / lid-close
   locks the screen, since there's no DM to re-prompt on resume) and disables
@@ -225,11 +229,17 @@ run `just verify-i3` after your first i3 login. The commands live in the
   `exec i3` — so the old display-manager PATH-sanitization footgun is gone.
   If bare-name launches fail, check that `~/.xinitrc`'s
   `~/.nix-profile/etc/profile.d/nix.sh` line ran (there is no DM and
-  `~/.xprofile` is not read). If volume keys do nothing, run `just audio`.
+  `~/.xprofile` is not read). If volume keys do nothing, run `just audio`;
+  if privileged actions never prompt, run `just polkit`.
+- **`net`** *(optional — not part of `bootstrap`)* — installs and enables
+  NetworkManager. A netinst drives the wired NIC via ifupdown, which keeps
+  working; run this only if you want NM managing links (wifi, hotplug). If
+  you do, delete the matching stanza from `/etc/network/interfaces` or
+  ifupdown and NM will fight over the device.
 
 ### Not automated (manual EVA on a true nuke)
 
-- **Apt-managed base**: the OS, system i3/X server/login manager, and any apt
+- **Apt-managed base**: the Debian OS itself, system i3/X server, and any apt
   packages (e.g. the Chrome `.deb`) are outside Nix — reinstall those
   separately.
 - **SSH/GPG keys, browser profile, other dotfiles**: back these up separately;
@@ -239,8 +249,9 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 - **Pi**: Not in nixpkgs, so it's installed via an npm wrapper script at
   `~/.local/bin/pi`.
-- **No display manager**: boot lands at the tty1 getty login prompt (SDDM is
-  disabled via `just startx`). `.zlogin` (`programs.zsh.loginExtra`) detects
+- **No display manager**: boot lands at the tty1 getty login prompt (a
+  Debian netinst has no DM to begin with; `just startx` disables SDDM when
+  one exists, e.g. on Lubuntu). `.zlogin` (`programs.zsh.loginExtra`) detects
   tty1 with no `$DISPLAY` and `exec startx`; `~/.xinitrc`
   (`home.file.".xinitrc"` → `startx/xinitrc`) sources the Nix profile, sets
   Caps↔Esc, and `exec i3`. `Mod+Shift+e` exits i3 → startx dies → shell dies

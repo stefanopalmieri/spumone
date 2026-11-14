@@ -329,7 +329,7 @@
   };
 
   # ----------------------------------------------------------------
-  # i3 window manager config (system i3 on Lubuntu)
+  # i3 window manager config (system i3 from apt)
   # ----------------------------------------------------------------
   xdg.configFile."i3/config".force = true;
   # The base config is the raw ./i3/config file; host-specific tweak
@@ -351,6 +351,8 @@
   xdg.configFile."i3/scripts/cheatsheet.sh".source = ./i3/scripts/cheatsheet.sh;
   xdg.configFile."i3/scripts/empty-status.sh".force = true;
   xdg.configFile."i3/scripts/empty-status.sh".source = ./i3/scripts/empty-status.sh;
+  xdg.configFile."i3/scripts/polkit-agent.sh".force = true;
+  xdg.configFile."i3/scripts/polkit-agent.sh".source = ./i3/scripts/polkit-agent.sh;
 
   # ----------------------------------------------------------------
   # i3status bar config (Spacemacs dark theme)

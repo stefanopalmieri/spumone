@@ -276,13 +276,16 @@ exec --no-startup-id picom
 exec --no-startup-id dunst
 
 # Set wallpaper (change path to your own)
-# Solid fallback first so the SDDM greeter image is always cleared from the
-# root window, even if the wallpaper file below is missing.
+# Solid fallback first so any greeter image (SDDM on Lubuntu; a plain
+# Debian netinst has none) is cleared from the root window, even if the
+# wallpaper file below is missing.
 exec --no-startup-id xsetroot -solid "#292b2e"
 exec --no-startup-id feh --bg-fill ~/Pictures/wallpaper.jpg
 
-# Start polkit agent (for GUI privilege escalation)
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+# Start polkit agent (GUI privilege prompts). Agent paths are package- and
+# distro-specific, so exec the probe script: first existing binary wins
+# (Debian 12 policykit-1-gnome, Arch polkit-gnome, KDE/lxqt agents, ...).
+exec --no-startup-id ~/.config/i3/scripts/polkit-agent.sh
 
 # Start redshift (blue light filter)
 exec --no-startup-id redshift -l 40.7:-74.0 -t 6500:3500

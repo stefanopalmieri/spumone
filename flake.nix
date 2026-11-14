@@ -1,5 +1,5 @@
 {
-  description = "Stefano's Home Manager configuration (Lubuntu + i3 + Emacs/Spacemacs)";
+  description = "Stefano's Home Manager configuration (Debian + i3 + Emacs/Spacemacs)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

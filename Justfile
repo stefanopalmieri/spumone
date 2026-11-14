@@ -12,7 +12,7 @@ default: bootstrap
 # Run all post-activation one-offs (sudo primed once; every recipe idempotent).
 # Order matters: login-shell before startx (the auto-startx in .zlogin needs
 # the system zsh as the login shell).
-bootstrap: _sudo login-shell i3 xorg audio startx vterm-deps spacemacs
+bootstrap: _sudo login-shell i3 xorg polkit audio startx vterm-deps spacemacs
     @echo ""
     @echo "✓ bootstrap complete."
     @echo "  Log out/in for the new login shell to take effect."
@@ -48,9 +48,10 @@ i3:
     sudo apt install -y i3
     ls /usr/share/xsessions/i3.desktop
 
-# X server + xinit + xkb tools. Lubuntu ships these as part of its desktop
-# metapackage; a minimal Debian netinst does not. ~/.xinitrc calls `startx`
-# and `setxkbmap`, so both must be present before the startx flow works.
+# X server + xinit + xkb tools. A minimal Debian netinst ships none of these
+# (no desktop task; Lubuntu's desktop metapackage used to provide them).
+# ~/.xinitrc calls `startx` and `setxkbmap`, so both must be present before
+# the startx flow works.
 # Idempotent: skips if `startx` is already on PATH.
 xorg:
     #!/usr/bin/env bash
@@ -61,10 +62,37 @@ xorg:
     fi
     sudo apt install -y xorg xinit x11-xkb-utils
 
-# PipeWire audio stack. Lubuntu ships pipewire + wireplumber, so `wpctl`
-# (which the i3 volume/mute keys call) works out of the box; a minimal
-# Debian netinst does not. `pipewire-audio` is Debian's metapackage pulling
-# in pipewire + wireplumber + pipewire-pulse + pipewire-alsa. `wpctl` itself
+# Polkit authentication agent — the GUI password prompt behind pkexec
+# (disks, users, system settings). i3 execs
+# ~/.config/i3/scripts/polkit-agent.sh, which probes the known locations;
+# this recipe just makes sure one exists. Debian 12 ships
+# policykit-1-gnome; trixie dropped it from the archive, so fall back to
+# lxpolkit there. Idempotent: skips if any known agent is already installed
+# (Lubuntu ships one, so this no-ops there too).
+polkit:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for agent in /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 \
+                 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 \
+                 /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1 \
+                 /usr/bin/lxpolkit; do
+      if [ -x "$agent" ]; then
+        echo "polkit agent already present ($agent) — skipping"
+        exit 0
+      fi
+    done
+    if apt-cache show policykit-1-gnome >/dev/null 2>&1; then
+      sudo apt install -y policykit-1-gnome
+    else
+      sudo apt install -y lxpolkit
+    fi
+    echo "polkit agent installed — i3's probe picks it up on next login"
+
+# PipeWire audio stack. A minimal Debian netinst has no sound server at all,
+# while the i3 volume/mute keys call `wpctl` (from the `wireplumber`
+# package). `pipewire-audio` is Debian's metapackage pulling
+# in pipewire + wireplumber + pipewire-pulse + pipewire-alsa (Ubuntu ships
+# the same stack preinstalled, so this no-ops there too). `wpctl` itself
 # ships from `wireplumber`, so we guard on it for idempotency.
 # The user services are D-Bus / systemd-user activated; enabling them here
 # means they come up with the user session on the next login (startx runs
@@ -79,6 +107,22 @@ audio:
     sudo apt install -y pipewire-audio
     systemctl --user enable pipewire pipewire-pulse wireplumber >/dev/null 2>&1 || true
     echo "pipewire-audio installed + user services enabled"
+
+# OPTIONAL: NetworkManager. A netinst drives the wired NIC via ifupdown, and
+# that keeps working — so this is NOT part of bootstrap. Run it when you want
+# NM to manage links (wifi, hotplug). Afterwards delete the matching stanza
+# from /etc/network/interfaces or the two will fight over the device.
+net:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v nmcli >/dev/null 2>&1 && systemctl is-enabled NetworkManager >/dev/null 2>&1; then
+      echo "NetworkManager already installed + enabled — skipping"
+      exit 0
+    fi
+    sudo apt install -y network-manager
+    sudo systemctl enable --now NetworkManager
+    echo "NetworkManager enabled. Remove the matching stanza from"
+    echo "/etc/network/interfaces so ifupdown and NM don't fight over the link."
 
 # Replace the display manager with startx: install the suspend-lock service
 # (so lid-close / suspend locks the screen) and disable SDDM. The actual
@@ -135,6 +179,7 @@ verify-i3:
     @echo "  - \$mod+b opens chromium"
     @echo "  - \$mod+Return opens a terminal (emacs vterm)"
     @echo "  - volume / mute keys work (wpctl — needs `just audio` first)"
+    @echo "  - privileged actions pop a GUI password dialog (just polkit)"
     @echo ""
     @echo "If bare-name launches (rofi/chromium/emacs) fail, ~/.xinitrc"
     @echo "isn't putting ~/.nix-profile/bin on PATH. It sources"
