@@ -128,11 +128,11 @@ net:
     echo "/etc/network/interfaces so ifupdown and NM don't fight over the link."
 
 # Replace the display manager with startx: install the suspend-lock service
-# (so lid-close / suspend locks the screen) and disable SDDM. The actual
-# session launch is ~/.zlogin → startx → ~/.xinitrc → i3 (all managed by
-# Home Manager); this recipe only handles the system-level pieces HM can't.
-# On a minimal Debian install there is no SDDM to disable — the `is-enabled`
-# check no-ops cleanly, so the recipe is safe on both.
+# (so lid-close / suspend locks the screen) and disable whatever display
+# manager is installed. The actual session launch is ~/.zlogin → startx →
+# ~/.xinitrc → i3 (all managed by Home Manager); this recipe only handles
+# the system-level pieces HM can't. No DM installed (minimal Debian
+# netinst)? Every check below no-ops cleanly.
 startx:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -146,13 +146,15 @@ startx:
     sudo systemctl daemon-reload
     sudo systemctl enable lock-on-suspend.service >/dev/null 2>&1 || true
     echo "lock-on-suspend.service installed + enabled (User=$USER)"
-    # Disable SDDM so boot lands at the tty1 login prompt (auto-startx).
-    if systemctl is-enabled sddm >/dev/null 2>&1; then
-      sudo systemctl disable sddm
-      echo "sddm disabled"
-    else
-      echo "sddm already disabled — skipping"
-    fi
+    # Disable any display manager so boot lands at the tty1 login prompt
+    # (auto-startx). Not just sddm: the netinst's pre-ticked desktop task
+    # ships gdm3, which otherwise owns tty1 and shadows the getty.
+    for dm in gdm3 sddm lightdm lxdm slim xdm nodm; do
+      if systemctl is-enabled "$dm" >/dev/null 2>&1; then
+        sudo systemctl disable "$dm"
+        echo "$dm disabled"
+      fi
+    done
 
 # Install C toolchain (build-essential + cmake) + libvterm headers for
 # Spacemacs's vterm layers. We use APT (not Nix) for cmake here because the

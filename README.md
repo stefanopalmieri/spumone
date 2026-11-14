@@ -191,7 +191,9 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **`startx`** — replaces the display manager with a `startx` flow:
   installs + enables `startx/lock-on-suspend.service` (so suspend / lid-close
   locks the screen, since there's no DM to re-prompt on resume) and disables
-  SDDM so boot lands at the tty1 login prompt. The session launch itself —
+  the display manager — gdm3, sddm, lightdm, … (watch out: the netinst's
+  desktop task is pre-ticked and ships GNOME + gdm) — so boot lands at the
+  tty1 login prompt. The session launch itself —
   `.zlogin` → `startx` → `~/.xinitrc` → `i3` — is fully Home-Manager-managed
   (see `programs.zsh.loginExtra` and `home.file.".xinitrc"` in `home.nix`);
   this recipe only handles the system-level pieces HM can't.
@@ -250,8 +252,8 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **Pi**: Not in nixpkgs, so it's installed via an npm wrapper script at
   `~/.local/bin/pi`.
 - **No display manager**: boot lands at the tty1 getty login prompt (a
-  Debian netinst has no DM to begin with; `just startx` disables SDDM when
-  one exists, e.g. on Lubuntu). `.zlogin` (`programs.zsh.loginExtra`) detects
+  Debian netinst often ships gdm3 via the pre-ticked desktop task;
+  `just startx` disables any display manager it finds). `.zlogin` (`programs.zsh.loginExtra`) detects
   tty1 with no `$DISPLAY` and `exec startx`; `~/.xinitrc`
   (`home.file.".xinitrc"` → `startx/xinitrc`) sources the Nix profile, sets
   Caps↔Esc, and `exec i3`. `Mod+Shift+e` exits i3 → startx dies → shell dies
