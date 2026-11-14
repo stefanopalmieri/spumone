@@ -84,7 +84,7 @@ polkit:
         exit 0
       fi
     done
-    if apt-cache show policykit-1-gnome >/dev/null 2>&1; then
+    if apt-cache show policykit-1-gnome 2>/dev/null | grep -q '^Version:'; then
       sudo apt install -y policykit-1-gnome
     else
       sudo apt install -y lxpolkit
