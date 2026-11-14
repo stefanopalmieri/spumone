@@ -20,8 +20,11 @@ bootstrap: _sudo login-shell i3 xorg polkit audio startx vterm-deps spacemacs
     @echo "  Finally run 'just verify-i3' after your first i3 login."
 
 # Prime the sudo timestamp so the apt/chsh recipes below don't re-prompt.
+# Non-interactive first (NOPASSWD sudoers, CI, ssh without a tty — plain
+# `sudo -v` demands a terminal there even when no password is needed);
+# fall back to the interactive prompt only when a password is required.
 _sudo:
-    @sudo -v
+    @sudo -n true 2>/dev/null || sudo -v
 
 # Install system zsh and set it as login shell (NEVER the Nix zsh — see README).
 login-shell:
