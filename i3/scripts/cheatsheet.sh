@@ -36,23 +36,12 @@ cat <<'EOF' | rofi -dmenu -i -p "i3 Keybindings" -theme spacemacs -theme-str 'wi
   (configured in i3 config: zero gaps everywhere)
 
 ─── APPS ───────────────────────────────
-  Mod+Return .................. terminal — emacs vterm (main) / sakura (standalone)
+  Mod+Return .................. terminal — emacs vterm
   Mod+d ....................... app launcher (rofi)
   Mod+period .................. emoji picker (rofi-emoji)
   Mod+b ....................... chromium
   Mod+m ....................... emacs
   Mod+n ....................... file manager (pcmanfm)
-
-─── SAKURA TERMINAL SHORTCUTS ──────────
-  Ctrl+Shift+T ................ new tab
-  Ctrl+Shift+W ................ close current tab
-  Ctrl+Left/Right ............. previous / next tab
-  Ctrl+[1-9] .................. switch to tab 1-9
-  Ctrl+Shift+C / V ........... copy / paste
-  Ctrl++ / Ctrl+- ............. increase / decrease font
-  F11 ......................... fullscreen toggle
-  Shift+PageUp/Dn ............. page scrollback
-  Ctrl+Shift+Up/Dn ........... line scrollback
 
 ─── SCRATCHPAD ─────────────────────────
   Mod+Shift+e ................. emacs scratchpad (floating, workspace 10)
