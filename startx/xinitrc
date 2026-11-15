@@ -21,6 +21,12 @@ export PATH="${HOME}/.nix-profile/bin:${PATH}"
 # before i3 loads so the keyboard is correct from the first keystroke).
 setxkbmap -option caps:swapescape
 
+# Publish the session environment for dbus/systemd --user activation.
+# GUI services are started by the user manager OUTSIDE this process tree
+# (xdg-desktop-portal, xdg-desktop-portal-gtk, ...); without DISPLAY
+# inherited they die at startup with "cannot open display".
+dbus-update-activation-environment --systemd DISPLAY XAUTHORITY 2>/dev/null || true
+
 # Hand off to i3. `exec` replaces this shell, so when i3 exits
 # (Mod+Shift+e / `i3-msg exit`) the X server dies and you land back
 # at the TTY you ran `startx` from.
