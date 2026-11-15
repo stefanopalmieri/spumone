@@ -42,5 +42,10 @@
       # i3/lowres.conf (floating-window size cap + centered dialogs) so
       # file chooser / print dialogs fit the panel.
       homeConfigurations.stefano-x61 = mkHome "stefano" { lowres = true; };
+      # Lenovo (1366x768): same sub-HD panel *height* as the X61, so the
+      # 1000x700 cap from `lowres` fits with room to spare (768 - 28 px
+      # i3bar = 740 usable). Reuse the trait rather than adding a
+      # lowres-1366 snippet for a width we don't need to shrink.
+      homeConfigurations.stefano-lenovo = mkHome "stefano" { lowres = true; };
     };
 }
