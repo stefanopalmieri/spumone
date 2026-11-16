@@ -85,10 +85,10 @@
     # Python package manager / environment (not in nixpkgs)
     (pkgs.stdenv.mkDerivation rec {
       pname = "uv";
-      version = "0.11.24";
+      version = "0.13.8";
       src = pkgs.fetchurl {
         url = "https://github.com/astral-sh/uv/releases/download/${version}/uv-x86_64-unknown-linux-gnu.tar.gz";
-        sha256 = "1v8zqd7jwxj838am655wjlhjisqjbaw8n212h5f6rybq983svqaw";
+        sha256 = "sha256-Ws/ZF3z+zwv4dXjwWXKCFczIhDiJiPVfemUEG1c4fZE=";
       };
       nativeBuildInputs = [ pkgs.autoPatchelfHook ];
       buildInputs = [ pkgs.stdenv.cc.cc.lib ];
@@ -339,6 +339,7 @@
   # i3status bar config (Spacemacs dark theme)
   # ----------------------------------------------------------------
   xdg.configFile."i3status/config".force = true;
+  xdg.configFile."i3status/config".source = ./i3status/config;
 
   # ----------------------------------------------------------------
   # Rofi application launcher + emoji plugin
@@ -351,7 +352,6 @@
     theme = ./rofi/spacemacs.rasi;
     plugins = [ pkgs.rofi-emoji ];
   };
-  xdg.configFile."i3status/config".source = ./i3status/config;
 
   # ----------------------------------------------------------------
   # Let Home Manager install and manage itself

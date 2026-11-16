@@ -206,11 +206,13 @@ bindsym $mod+Shift+r restart
 # Power menu (rofi)
 bindsym $mod+Shift+x exec ~/.config/i3/scripts/power-menu.sh
 
-# Screenshot (maim + slop)
-bindsym Print exec maim ~/Pictures/Screenshots/$(date +%F-%T).png
-bindsym $mod+p exec maim -s ~/Pictures/Screenshots/$(date +%F-%T).png
-bindsym $mod+Shift+p exec maim ~/Pictures/Screenshots/$(date +%F-%T).png
-bindsym $mod+Shift+s exec maim -s | xclip -selection clipboard -t image/png
+# Screenshot (maim + slop). mkdir -p first: maim does not create parent
+# dirs, and a missing ~/Pictures/Screenshots silently kills the shot.
+# sh -c wrapper because i3's exec expands via wordexp, not a full shell.
+bindsym Print exec --no-startup-id sh -c 'mkdir -p ~/Pictures/Screenshots && maim ~/Pictures/Screenshots/$(date +%F-%T).png'
+bindsym $mod+p exec --no-startup-id sh -c 'mkdir -p ~/Pictures/Screenshots && maim -s ~/Pictures/Screenshots/$(date +%F-%T).png'
+bindsym $mod+Shift+p exec --no-startup-id sh -c 'mkdir -p ~/Pictures/Screenshots && maim ~/Pictures/Screenshots/$(date +%F-%T).png'
+bindsym $mod+Shift+s exec --no-startup-id sh -c 'maim -s | xclip -selection clipboard -t image/png'
 
 # ============================================================
 # Media / function keys
