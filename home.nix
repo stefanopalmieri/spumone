@@ -40,6 +40,10 @@
     # works. libtool is kept here (it's a shell-script wrapper, no SSE deps).
     libtool
 
+    # pinentry for gpg-agent passphrase prompts (also on PATH for gpg
+    # processes started outside the agent's systemd unit).
+    pinentry-curses
+
     # Zig — needed to compile ghostel's native module from source.
     # Ghostel's compile-command already passes `-Dcpu=baseline` so it
     # won't emit SSE4.1 instructions on this Core 2 Duo T7250.
@@ -351,6 +355,32 @@
     package = pkgs.rofi;
     theme = ./rofi/spacemacs.rasi;
     plugins = [ pkgs.rofi-emoji ];
+  };
+
+  # ----------------------------------------------------------------
+  # Secrets & keys: pass (password store) on GnuPG
+  # ----------------------------------------------------------------
+  # pass is the CLI password manager: each secret is an encrypted file in
+  # ~/.password-store, the store itself is a git repo, and everything is
+  # driven from the terminal (see `pass --help`). GnuPG agent caches the
+  # key passphrase in the session; pinentry-curses prompts in the tty.
+  programs.password-store.enable = true;
+
+  # GnuPG itself (the agent below prompts via pinentry-curses in the tty).
+  # The GitHub SSH key stays a plain ed25519 file, used agentless: no
+  # passphrase, and at-rest risk is covered by the LUKS-encrypted disk.
+  programs.gpg.enable = true;
+
+  services.gpg-agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-curses;
+    # HM's unit does not put pinentry on the agent's PATH, so name it
+    # explicitly -- otherwise the agent dies with "No pinentry".
+    extraConfig = ''
+      pinentry-program ${pkgs.pinentry-curses}/bin/pinentry-curses
+    '';
+    defaultCacheTtl = 86400; # ask at most once a day
+    maxCacheTtl = 86400;
   };
 
   # ----------------------------------------------------------------

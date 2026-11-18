@@ -321,10 +321,13 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **mosh** — mobile SSH (persistent connections over UDP). Add to
   `home.packages`.
 
-### Secrets management
-- **gnupg** — GPG key management. `programs.gpg.enable = true;`
-- **password-store** — `pass` password manager.
-  `programs.password-store.enable = true;`
+### Secrets management (installed 2026-11)
+- **gnupg** — live: `programs.gpg.enable` + `services.gpg-agent`
+  (pinentry-curses, 24 h cache). Primary key ed25519, fingerprint
+  `C4EA F095 E4B4 6059 C06C  1BB4 3F58 0ECC 3932 7F45`.
+- **password-store** — live: `programs.password-store.enable`; store at
+  `~/.password-store`, git-backed. The GPG key passphrase is itself a pass
+  entry: `pass show gpg/master-passphrase`.
 - **sops** — encrypted secrets in git. Great for managing API keys
   declaratively.
 
