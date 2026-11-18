@@ -73,6 +73,10 @@ Systems installer (systemd `nix-daemon`, flakes enabled by default).
 >   (`mkHome "stefano" { lowres = true; }`), which appends `i3/lowres.conf`
 >   (`floating_maximum_size 1000 x 700` + centered dialogs) so file-chooser
 >   / print dialogs fit the ThinkPad X61's 1024×768 panel.
+> - `homeConfigurations.stefano-lenovo` — base + `lowres` too: the Lenovo's
+>   1366×768 panel shares the X61's *height*, so the same 1000×700 cap
+>   fits (768 − 28 px i3bar = 740 usable); no separate `lowres-1366`
+>   snippet is warranted for a width we don't need to shrink.
 >
 > Activate on the X61 with `home-manager switch --flake .#stefano-x61`; on
 > higher-res hosts keep using `.#stefano` and the cap won't apply. To support
@@ -256,8 +260,10 @@ run `just verify-i3` after your first i3 login. The commands live in the
   `just startx` disables any display manager it finds). `.zlogin` (`programs.zsh.loginExtra`) detects
   tty1 with no `$DISPLAY` and `exec startx`; `~/.xinitrc`
   (`home.file.".xinitrc"` → `startx/xinitrc`) sources the Nix profile, sets
-  Caps↔Esc, and `exec i3`. `Mod+Shift+e` exits i3 → startx dies → shell dies
-  → back at the login prompt. The chain fires **only on tty1**, so logging
+  Caps↔Esc, and `exec i3`. There is no bare exit-i3 keybind: leaving i3 goes
+  through the power menu (`Mod+Shift+x` → Logout → `i3-msg exit`) → startx
+  dies → shell dies → back at the login prompt. (`Mod+Shift+e` is the emacs
+  scratchpad, not exit.) The chain fires **only on tty1**, so logging
   into tty2+ for debugging gives a plain shell (your failsafe console).
 - **Suspend lock**: `startx/lock-on-suspend.service` runs `i3lock -c 292b2e`
   (Spacemacs `bg1`, matching the `$mod+Escape` i3 binding) before `sleep.target`.

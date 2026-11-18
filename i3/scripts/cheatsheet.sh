@@ -24,13 +24,17 @@ cat <<'EOF' | rofi -dmenu -i -p "i3 Keybindings" -theme spacemacs -theme-str 'wi
   Mod+s ....................... stacking layout
   Mod+w ....................... tabbed layout
   Mod+e ....................... split layout
+
+─── WINDOWS ─────────────────────────────
+  Mod+q ....................... kill window
   Mod+Shift+space ............ floating toggle
   Mod+space ................... focus floating / tiling toggle
+  Mod+Shift+t ................. sticky toggle (follow across workspaces)
 
 ─── RESIZE ─────────────────────────────
   Mod+r ....................... enter resize mode, then h/j/k/l
   Mod+a ....................... focus parent container
-  Mod+d ....................... focus child container
+  Mod+c ....................... focus child container
 
 ─── GAPS & BORDERS ─────────────────────
   (configured in i3 config: zero gaps everywhere)
