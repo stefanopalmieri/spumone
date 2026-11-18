@@ -28,6 +28,6 @@ setxkbmap -option caps:swapescape
 dbus-update-activation-environment --systemd DISPLAY XAUTHORITY 2>/dev/null || true
 
 # Hand off to i3. `exec` replaces this shell, so when i3 exits
-# (Mod+Shift+e / `i3-msg exit`) the X server dies and you land back
+# (power menu Logout → `i3-msg exit`) the X server dies and you land back
 # at the TTY you ran `startx` from.
 exec i3
