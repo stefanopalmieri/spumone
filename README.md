@@ -16,6 +16,7 @@ reconstitute on any fresh Debian netinst.
 - **Helmet HUD**: Starship prompt, spumone powerline theme
 - **Alignment**: Chaotic Evil. `hjkl` or die.
 - **Viewport**: Chromium
+- **Secrets**: `pass` (password-store) on GnuPG, agent prompt via `pinentry-tty`
 - **Launch**: `startx` from tty1 — no display manager. `.zlogin`
   auto-fires `startx` on login (one password, lands straight in i3);
   `~/.xinitrc` sources the Nix profile and `exec i3`.
@@ -297,6 +298,15 @@ run `just verify-i3` after your first i3 login. The commands live in the
   Mechanism (1) is independent of the ini symlink, so the scheme is reliably
   found under `$XDG_DATA_HOME`. If QTerminal ever launches with a white
   background after a rebuild, this is why.
+- **Secrets & keys**: `pass` on GnuPG — `programs.password-store.enable` +
+  `programs.gpg.enable`; the store lives at `~/.password-store` (git-backed).
+  `services.gpg-agent` caches the key passphrase for 24 h and prompts via
+  `pinentry-tty`: HM's agent unit ships no pinentry on PATH, so `extraConfig`
+  pins `pinentry-program` explicitly (the curses dialog dies with "Screen or
+  window too small" under the agent; plain-tty also works headless). The GPG
+  key passphrase is itself a pass entry: `pass show gpg/master-passphrase`.
+  Primary key ed25519, fingerprint
+  `C4EA F095 E4B4 6059 C06C  1BB4 3F58 0ECC 3932 7F45`.
 
 ## Extra scoops to add
 
@@ -321,19 +331,8 @@ run `just verify-i3` after your first i3 login. The commands live in the
 - **mosh** — mobile SSH (persistent connections over UDP). Add to
   `home.packages`.
 
-### Secrets management (installed 2026-11)
-- **gnupg** — live: `programs.gpg.enable` + `services.gpg-agent`
-  (pinentry-curses, 24 h cache). Primary key ed25519, fingerprint
-  `C4EA F095 E4B4 6059 C06C  1BB4 3F58 0ECC 3932 7F45`.
-- **password-store** — live: `programs.password-store.enable`; store at
-  `~/.password-store`, git-backed. The GPG key passphrase is itself a pass
-  entry: `pass show gpg/master-passphrase`.
-- **sops** — encrypted secrets in git. Great for managing API keys
-  declaratively.
-
 ### Nix-specific
-- **agenix** or **sops-nix** — declarative secret management for NixOS/Home
-  Manager.
+- **agenix** — declarative secret management for NixOS/Home Manager.
 - **nix-index** — quickly find which nixpkg provides a file.
   `programs.nix-index.enable = true;`
 - **nh** — nice helper for nix commands (`nh os switch`, `nh home switch`).
