@@ -15,7 +15,7 @@
 #   just audio       -> services.pipewire
 #   just startx      -> no display manager + lock-on-suspend unit
 #   home.nix         -> home-manager.users.<name> (unchanged module)
-{ modulesPath, lib, ... }:
+{ modulesPath, lib, pkgs, ... }:
 
 {
   imports = [ (modulesPath + "/virtualisation/qemu-vm.nix") ];
@@ -30,10 +30,18 @@
 
   # The rehearsal user mirrors the real one (home-manager wires into this
   # same attrset in a later step via users.users.<name>).
+  # Step 3 — mirrors `just login-shell`, minus the trap: on NixOS the zsh
+  # in /etc/shells IS the nix one (the profile is part of the system
+  # closure, so the Debian-era GC/lockout argument doesn't apply).
+  # programs.zsh.enable is the `apt install zsh` equivalent — the system
+  # zsh, /etc/shells, global env — NOT hm's per-user module.
+  programs.zsh.enable = true;
   users.users.stefano = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     password = "rehearsal"; # VM-only throwaway — never a real credential
+
+    shell = pkgs.zsh;
   };
 
   # The real box is a minimal netinst; keep the guest equally spartan.
