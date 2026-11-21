@@ -47,5 +47,13 @@
       # i3bar = 740 usable). Reuse the trait rather than adding a
       # lowres-1366 snippet for a width we don't need to shrink.
       homeConfigurations.stefano-lenovo = mkHome "stefano" { lowres = true; };
+
+      # NixOS rehearsal VM (see nixos/rehearsal.nix): the full-Nix endgame
+      # rehearsed in qemu, one milestone per commit. Same flake inputs, so
+      # the VM sees exactly the nixpkgs/home-manager pins the hosts see.
+      nixosConfigurations.rehearsal = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [ ./nixos/rehearsal.nix ];
+      };
     };
 }
