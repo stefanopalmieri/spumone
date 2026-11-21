@@ -49,8 +49,10 @@
     libtool
 
     # pinentry for gpg-agent passphrase prompts (also on PATH for gpg
-    # processes started outside the agent's systemd unit).
-    pinentry-curses
+    # processes started outside the agent's systemd unit). tty flavor: the
+    # curses dialog dies with "Screen or window too small" under the agent;
+    # plain-tty prompt works interactively AND in headless/daemon shells.
+    pinentry-tty
 
     # Zig — needed to compile ghostel's native module from source.
     # Ghostel's compile-command already passes `-Dcpu=baseline` so it
@@ -381,11 +383,11 @@
 
   services.gpg-agent = {
     enable = true;
-    pinentryPackage = pkgs.pinentry-curses;
+    pinentryPackage = pkgs.pinentry-tty;
     # HM's unit does not put pinentry on the agent's PATH, so name it
     # explicitly -- otherwise the agent dies with "No pinentry".
     extraConfig = ''
-      pinentry-program ${pkgs.pinentry-curses}/bin/pinentry-curses
+      pinentry-program ${pkgs.pinentry-tty}/bin/pinentry-tty
     '';
     defaultCacheTtl = 86400; # ask at most once a day
     maxCacheTtl = 86400;
