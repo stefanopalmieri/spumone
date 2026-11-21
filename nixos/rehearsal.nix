@@ -106,6 +106,34 @@
   # recipe's agent-install half is the hm bin-wrap above.)
   security.polkit.enable = true;
 
+  # ----------------------------------------------------------------
+  # Step 6: startx semantics — no DM + lock-before-suspend.
+  # ----------------------------------------------------------------
+  # No-DM: nothing to do — NixOS enables no display manager unless asked,
+  # so the netinst "pre-ticked GNOME" trap cannot exist; getty owns tty1
+  # and hm's .zlogin loginExtra startx-guards the rest, unchanged.
+  #
+  # lock-on-suspend: the Debian unit (startx/lock-on-suspend.service) as a
+  # first-class NixOS unit — same Before/RequiredBy sleep.target choreography
+  # and forking i3lock in Spacemacs bg1. Deltas: User is declarative (no
+  # __USER__ sed), i3lock resolves from the closure (no /usr/bin on NOS),
+  # and %h becomes the literal home (keep it in sync if the username ever
+  # changes; rehearsal is single-user by construction).
+  systemd.services.lock-on-suspend = {
+    description = "Lock screen before suspend (startx, no DM)";
+    before = [ "sleep.target" ];
+    requiredBy = [ "sleep.target" ];
+    environment = {
+      DISPLAY = ":0";
+      XAUTHORITY = "/home/stefano/.Xauthority";
+    };
+    serviceConfig = {
+      Type = "forking";
+      User = "stefano";
+      ExecStart = "${pkgs.i3lock}/bin/i3lock -c 292b2e";
+    };
+  };
+
   # Matches the hm repo's pin generation; NixOS warns on stateVersion drift.
   system.stateVersion = "25.05";
 }
