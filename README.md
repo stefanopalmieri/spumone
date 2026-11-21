@@ -29,18 +29,19 @@ engine from beyond the veil.
 ## Coming from Lubuntu?
 
 The base used to be Lubuntu; it is now plain Debian. Nothing
-Lubuntu-specific remains: the apt names (`zsh`, `i3`, `build-essential`,
+Lubuntu-specific remains: the apt names (`zsh`, `build-essential`,
 `cmake`, `libvterm-dev`) are identical, and `just bootstrap` installs
-everything a minimal netinst lacks — X (`just xorg`), a polkit agent
-(`just polkit`) and PipeWire (`just audio`). The Core 2 Duo SIGILL
+everything a minimal netinst lacks — X (`just xorg`) and PipeWire
+(`just audio`). The i3 binary and the polkit agent ship with Home
+Manager itself (`home.nix` `home.packages`). The Core 2 Duo SIGILL
 workaround (apt `cmake` via `just vterm-deps`) is CPU-specific, not
 distro-specific, and stays; so does the parametric `username` threading
 (`home.nix` ← `flake.nix extraSpecialArgs`).
 
 Reconstituting onto an *existing* Lubuntu instead? Every recipe no-ops
-cleanly: Lubuntu already ships X, PipeWire and a polkit agent (each guard
-checks for its binary), and `just startx`'s SDDM check simply finds the DM
-and disables it.
+cleanly: Lubuntu already ships X and PipeWire (each recipe guards on its
+binary), the polkit-agent probe falls back to whatever agent the distro
+ships, and `just startx`'s DM check simply finds the DM and disables it.
 
 ## Pre-flight checklist (fresh Debian netinst)
 
@@ -174,22 +175,11 @@ run `just verify-i3` after your first i3 login. The commands live in the
   owns `~/.zshrc` / `~/.zshenv` (starship, aliases, Nix PATH); only the
   *login* shell must be the stable apt binary. (Run `chsh -s $(which zsh)` and
   you resolve to the nix symlink — a classic EVA leak.)
-- **`i3`** — installs apt i3. Home Manager ships i3's *config*
-  (`~/.config/i3/config`), the i3status config, and the rofi theme, but **not
-  the `i3` binary**. The binary is needed by `~/.xinitrc` (`exec i3`). On a
-  fresh install i3 is absent, so this lands `/usr/bin/i3` (plus a
-  vestigial `/usr/share/xsessions/i3.desktop` that no display manager reads
-  anymore — startx doesn't use xsessions). i3's config launches
-  rofi/picom/dunst/chromium/emacs by bare name — see `verify-i3` if any hatch
-  fails to open.
 - **`xorg`** — the X server, `xinit` and xkb tools. A minimal Debian netinst
   has no desktop task to ship them; `~/.xinitrc` needs `startx` and
-  `setxkbmap` (from `x11-xkb-utils`).
-- **`polkit`** — a polkit authentication agent, so privileged actions pop a
-  GUI password dialog instead of failing silently. Debian 12 ships
-  `policykit-1-gnome`; trixie dropped it, so the recipe falls back to
-  `lxpolkit`. The i3 config no longer hardcodes an agent path — it execs
-  `~/.config/i3/scripts/polkit-agent.sh`, which probes the usual locations.
+  `setxkbmap` (from `x11-xkb-utils`). (The `i3` *binary* and the polkit
+  agent are Home-Manager-managed — see `home.nix` `home.packages`; only
+  i3's *config* and the agent-picker script need the session PATH.)
 - **`audio`** — the PipeWire stack (`pipewire-audio` = pipewire +
   wireplumber + pipewire-pulse/alsa) plus the systemd user services, so the
   i3 volume/mute keys (`wpctl`) work. A minimal netinst has no sound server.
@@ -229,15 +219,19 @@ run `just verify-i3` after your first i3 login. The commands live in the
   regenerates `~/.emacs.d` from there on.
 - **`verify-i3`** — manual post-login checks (can't be automated): confirm
   `$mod+d` (rofi), `$mod+b` (chromium), `$mod+Return` (terminal/emacs vterm),
-  and the volume/mute keys actually work after your first i3 login. i3 is
-  apt-managed but launches rofi/picom/dunst/chromium/emacs by bare name, so
-  those Nix-installed binaries must be on the session PATH. With `startx`
-  this is handled by `~/.xinitrc`, which sources the Nix profile before
-  `exec i3` — so the old display-manager PATH-sanitization footgun is gone.
-  If bare-name launches fail, check that `~/.xinitrc`'s
+  and the volume/mute keys actually work after your first i3 login. i3 —
+  like rofi/picom/dunst/chromium/emacs — launches everything by bare name,
+  so the Nix profile must be on the session PATH. With `startx` this is
+  handled by `~/.xinitrc`, which sources the Nix profile before `exec i3` —
+  so the old display-manager PATH-sanitization footgun is gone. If bare-name
+  launches fail, check that `~/.xinitrc`'s
   `~/.nix-profile/etc/profile.d/nix.sh` line ran (there is no DM and
   `~/.xprofile` is not read). If volume keys do nothing, run `just audio`;
-  if privileged actions never prompt, run `just polkit`.
+  if privileged actions never prompt, the polkit agent is missing — it is
+  Nix-shipped (`polkit_gnome` in `home.nix`) and i3's startup execs
+  `~/.config/i3/scripts/polkit-agent.sh`, which probes
+  `~/.nix-profile/libexec/` first (distro agents as fallback); relogin after
+  `home-manager switch` or run the probe by hand.
 - **`net`** *(optional — not part of `bootstrap`)* — installs and enables
   NetworkManager. A netinst drives the wired NIC via ifupdown, which keeps
   working; run this only if you want NM managing links (wifi, hotplug). If
@@ -246,7 +240,7 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 ### Not automated (manual EVA on a true nuke)
 
-- **Apt-managed base**: the Debian OS itself, system i3/X server, and any apt
+- **Apt-managed base**: the Debian OS itself, the X server, and any apt
   packages (e.g. the Chrome `.deb`) are outside Nix — reinstall those
   separately.
 - **SSH/GPG keys, browser profile, other dotfiles**: back these up separately;

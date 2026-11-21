@@ -11,8 +11,9 @@ default: bootstrap
 
 # Run all post-activation one-offs (sudo primed once; every recipe idempotent).
 # Order matters: login-shell before startx (the auto-startx in .zlogin needs
-# the system zsh as the login shell).
-bootstrap: _sudo login-shell i3 xorg polkit audio startx vterm-deps spacemacs
+# the system zsh as the login shell). The i3 binary and the polkit agent are
+# NOT here — Home Manager ships both (see home.nix `home.packages`).
+bootstrap: _sudo login-shell xorg audio startx vterm-deps spacemacs
     @echo ""
     @echo "✓ bootstrap complete."
     @echo "  Log out/in for the new login shell to take effect."
@@ -38,19 +39,6 @@ login-shell:
     chsh -s /usr/bin/zsh
     echo "login shell set to /usr/bin/zsh"
 
-# Install apt i3 (Home Manager ships the config, not the binary).
-# Used by startx (xinitrc execs `i3`); the /usr/share/xsessions/i3.desktop
-# it also installs is now vestigial — no display manager reads it.
-i3:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    if [ -f /usr/share/xsessions/i3.desktop ]; then
-      echo "i3 already installed — skipping"
-      exit 0
-    fi
-    sudo apt install -y i3
-    ls /usr/share/xsessions/i3.desktop
-
 # X server + xinit + xkb tools. A minimal Debian netinst ships none of these
 # (no desktop task; Lubuntu's desktop metapackage used to provide them).
 # ~/.xinitrc calls `startx` and `setxkbmap`, so both must be present before
@@ -64,32 +52,6 @@ xorg:
       exit 0
     fi
     sudo apt install -y xorg xinit x11-xkb-utils
-
-# Polkit authentication agent — the GUI password prompt behind pkexec
-# (disks, users, system settings). i3 execs
-# ~/.config/i3/scripts/polkit-agent.sh, which probes the known locations;
-# this recipe just makes sure one exists. Debian 12 ships
-# policykit-1-gnome; trixie dropped it from the archive, so fall back to
-# lxpolkit there. Idempotent: skips if any known agent is already installed
-# (Lubuntu ships one, so this no-ops there too).
-polkit:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    for agent in /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 \
-                 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 \
-                 /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1 \
-                 /usr/bin/lxpolkit; do
-      if [ -x "$agent" ]; then
-        echo "polkit agent already present ($agent) — skipping"
-        exit 0
-      fi
-    done
-    if apt-cache show policykit-1-gnome 2>/dev/null | grep -q '^Version:'; then
-      sudo apt install -y policykit-1-gnome
-    else
-      sudo apt install -y lxpolkit
-    fi
-    echo "polkit agent installed — i3's probe picks it up on next login"
 
 # PipeWire audio stack. A minimal Debian netinst has no sound server at all,
 # while the i3 volume/mute keys call `wpctl` (from the `wireplumber`
@@ -184,7 +146,8 @@ verify-i3:
     @echo "  - \$mod+b opens chromium"
     @echo "  - \$mod+Return opens a terminal (emacs vterm)"
     @echo "  - volume / mute keys work (wpctl — needs `just audio` first)"
-    @echo "  - privileged actions pop a GUI password dialog (just polkit)"
+    @echo "  - privileged actions pop a GUI password dialog (the polkit"
+    @echo "    agent is Nix-shipped; see home.nix home.packages)"
     @echo ""
     @echo "If bare-name launches (rofi/chromium/emacs) fail, ~/.xinitrc"
     @echo "isn't putting ~/.nix-profile/bin on PATH. It sources"

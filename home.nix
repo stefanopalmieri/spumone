@@ -77,6 +77,13 @@
     fastfetch
     just   # task runner — drives the post-activation bootstrap (see Justfile)
 
+    # i3 WM binary + polkit agent, both Nix-shipped (formerly `just i3` /
+    # `just polkit`). ~/.xinitrc sources the Nix profile before `exec i3`,
+    # and i3's startup execs the polkit-agent probe, which finds the agent
+    # at ~/.nix-profile/libexec/ — no apt packages needed for either.
+    i3
+    polkit_gnome
+
     # i3 / desktop tooling (referenced by i3 config)
     # rofi is managed by programs.rofi (below) to support plugins like rofi-emoji
     picom
