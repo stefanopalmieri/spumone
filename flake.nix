@@ -9,7 +9,7 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
+  outputs = { self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -52,13 +52,32 @@
       # rehearsed in qemu, one milestone per commit. Same flake inputs, so
       # the VM sees exactly the nixpkgs/home-manager pins the hosts see.
       # The HM module is imported here (not inside rehearsal.nix) so the
-      # rehearsal file never needs the flake inputs threaded through.
+      # host files never need the flake inputs threaded through.
       nixosConfigurations.rehearsal = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
           ./nixos/rehearsal.nix
           home-manager.nixosModules.home-manager
         ];
+      };
+
+      # The real machine — see nixos/lenovo.nix + nixos/MIGRATION.md. The
+      # cutover target; same HM-module pattern, lowres trait carried over
+      # from homeConfigurations.stefano-lenovo.
+      nixosConfigurations.lenovo = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./nixos/lenovo.nix
+          home-manager.nixosModules.home-manager
+        ];
+      };
+
+      # The cutover installer ISO — see nixos/installer.nix. Carries this
+      # very flake at /nixos-config via specialArgs.self.
+      nixosConfigurations.installer = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit self; };
+        modules = [ ./nixos/installer.nix ];
       };
     };
 }

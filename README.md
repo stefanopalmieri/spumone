@@ -338,4 +338,14 @@ run `just verify-i3` after your first i3 login. The commands live in the
 
 ---
 
+## The NixOS endgame
+
+The full-Nix migration is staged in-repo: `nixos/rehearsal.nix` (the
+qemu rehearsal that validated every recipe mapping), `nixos/lenovo.nix`
++ `lenovo-hardware.nix` (this machine, declaratively), and
+`nixos/MIGRATION.md` — the runbook. Read that last one before touching
+the partition table.
+
+---
+
 *Buon volo*
