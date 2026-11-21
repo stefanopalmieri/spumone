@@ -8,6 +8,10 @@
   home.homeDirectory = "/home/${username}";
   home.stateVersion = "24.11";
 
+  # bws (Bitwarden Secrets Manager CLI) is licensed unfree in nixpkgs; allow
+  # just it by name instead of flipping allowUnfree on globally.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [ "bws" ];
+
   # Pi's standalone node/bin directory + ~/.local/bin (the pi wrapper lives
   # there; bash gets it from Debian's ~/.profile, but zsh — the login shell
   # and thus the whole GUI session — reads no .profile, so declare it).
@@ -26,6 +30,10 @@
     wget
     ripgrep
     fd
+
+    # Bitwarden Secrets Manager CLI (secrets for agents/scripts; unfree, see
+    # allowUnfreePredicate above)
+    bws
 
     # Emacs with tree-sitter support (vterm handled by Spacemacs config)
     emacs
