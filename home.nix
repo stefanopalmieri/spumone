@@ -79,11 +79,18 @@
     just   # task runner — drives the post-activation bootstrap (see Justfile)
 
     # i3 WM binary + polkit agent, both Nix-shipped (formerly `just i3` /
-    # `just polkit`). ~/.xinitrc sources the Nix profile before `exec i3`,
-    # and i3's startup execs the polkit-agent probe, which finds the agent
-    # at ~/.nix-profile/libexec/ — no apt packages needed for either.
+    # `just polkit`). ~/.xinitrc sources nothing on NixOS yet still resolves
+    # every bare name: the session PATH carries the per-user profile. The
+    # agent gets wrapped into bin/ because polkit_gnome ships only
+    # libexec/ — hm's own profile links it, the NixOS per-user env does not;
+    # one PATH-visible name beats per-layout path probes.
     i3
-    polkit_gnome
+    (pkgs.runCommand "polkit-gnome-agent-bin" { }
+      ''
+        mkdir -p $out/bin
+        ln -s ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1 \
+          $out/bin/polkit-gnome-authentication-agent-1
+      '')
 
     # i3 / desktop tooling (referenced by i3 config)
     # rofi is managed by programs.rofi (below) to support plugins like rofi-emoji

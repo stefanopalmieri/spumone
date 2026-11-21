@@ -44,8 +44,20 @@
     shell = pkgs.zsh;
   };
 
-  # The real box is a minimal netinst; keep the guest equally spartan.
-  environment.systemPackages = [ ];
+  # ----------------------------------------------------------------
+  # Step 4: X userland — the `just xorg` mirror.
+  # ----------------------------------------------------------------
+  # Server + xinit + the tools ~/.xinitrc calls by name (setxkbmap; xmodmap
+  # for i3's exec_always keys remap). On real hardware this layer becomes
+  # services.xserver + videoDrivers; what's under test here is the userland
+  # chain (xinitrc → i3 → bare-name execs), identical on both.
+  # Xvfb smoke test: xinit "$HOME/.xinitrc" -- Xvfb :1 -screen 0 1280x800x24
+  environment.systemPackages = with pkgs; [
+    xorg.xorgserver
+    xorg.xinit
+    xorg.setxkbmap
+    xorg.xmodmap
+  ];
 
   # useGlobalPkgs (below) makes the home.nix unfree predicate inert: with a
   # shared pkgs set, NixOS owns nixpkgs.config. Mirror the bws-only predicate
@@ -66,6 +78,11 @@
   home-manager.backupFileExtension = "hm-backup";
   home-manager.extraSpecialArgs = { username = "stefano"; host = { }; };
   home-manager.users.stefano.imports = [ ../home.nix ];
+
+  # Step 4b: polkit's system half — the agent registers with polkitd on the
+  # system bus; without it the agent has nothing to talk to. (The Debian
+  # recipe's agent-install half is the hm bin-wrap above.)
+  security.polkit.enable = true;
 
   # Matches the hm repo's pin generation; NixOS warns on stateVersion drift.
   system.stateVersion = "25.05";

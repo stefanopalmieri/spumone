@@ -21,5 +21,12 @@ do
   [ -x "$agent" ] && exec "$agent"
 done
 
+# Last resort: anything agent-shaped on PATH. Covers the bin/ wrapper
+# home.nix ships (NixOS per-user profiles omit libexec/) and any distro
+# that puts an agent in bin.
+for name in polkit-gnome-authentication-agent-1 lxpolkit; do
+  p=$(command -v "$name" 2>/dev/null) && [ -n "$p" ] && exec "$p"
+done
+
 echo "spumone: no polkit agent found — GUI privilege prompts disabled (home-manager switch, then relogin)" >&2
 exit 1
