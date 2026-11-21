@@ -38,7 +38,10 @@
   programs.zsh.enable = true;
   users.users.stefano = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    # audio: the host user is in it on Debian too; on NOS the seat uaccess
+    # ACL usually covers /dev/snd, but a serial/no-seat session (and this
+    # VM) doesn't get one — explicit group beats invisible perm failures.
+    extraGroups = [ "wheel" "audio" ];
     password = "rehearsal"; # VM-only throwaway — never a real credential
 
     shell = pkgs.zsh;
@@ -78,6 +81,25 @@
   home-manager.backupFileExtension = "hm-backup";
   home-manager.extraSpecialArgs = { username = "stefano"; host = { }; };
   home-manager.users.stefano.imports = [ ../home.nix ];
+
+  # ----------------------------------------------------------------
+  # Step 5: audio — the `just audio` mirror.
+  # ----------------------------------------------------------------
+  # One declarative block replaces the whole apt dance (pipewire-audio
+  # metapackage + manual `systemctl --user enable`): pipewire, wireplumber
+  # and the pulse/alsa bridges, with user-session units wired by the module.
+  # The i3 volume/mute keys (wpctl) talk to this. Smoke test needs a sound
+  # device: run the VM with `-device intel-hda -device hda-duplex`.
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+
+  # RT scheduling for the audio graph — the module pair NixOS docs show
+  # alongside services.pipewire; without it wireplumber spams RTKit
+  # "ServiceUnknown" and the graph runs unprivileged-nice.
+  security.rtkit.enable = true;
 
   # Step 4b: polkit's system half — the agent registers with polkitd on the
   # system bus; without it the agent has nothing to talk to. (The Debian
