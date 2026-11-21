@@ -51,9 +51,14 @@
       # NixOS rehearsal VM (see nixos/rehearsal.nix): the full-Nix endgame
       # rehearsed in qemu, one milestone per commit. Same flake inputs, so
       # the VM sees exactly the nixpkgs/home-manager pins the hosts see.
+      # The HM module is imported here (not inside rehearsal.nix) so the
+      # rehearsal file never needs the flake inputs threaded through.
       nixosConfigurations.rehearsal = nixpkgs.lib.nixosSystem {
         inherit system;
-        modules = [ ./nixos/rehearsal.nix ];
+        modules = [
+          ./nixos/rehearsal.nix
+          home-manager.nixosModules.home-manager
+        ];
       };
     };
 }

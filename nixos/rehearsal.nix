@@ -15,7 +15,7 @@
 #   just audio       -> services.pipewire
 #   just startx      -> no display manager + lock-on-suspend unit
 #   home.nix         -> home-manager.users.<name> (unchanged module)
-{ modulesPath, ... }:
+{ modulesPath, lib, ... }:
 
 {
   imports = [ (modulesPath + "/virtualisation/qemu-vm.nix") ];
@@ -38,6 +38,26 @@
 
   # The real box is a minimal netinst; keep the guest equally spartan.
   environment.systemPackages = [ ];
+
+  # useGlobalPkgs (below) makes the home.nix unfree predicate inert: with a
+  # shared pkgs set, NixOS owns nixpkgs.config. Mirror the bws-only predicate
+  # here — same narrow form, never a global allowUnfree.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem
+    (lib.getName pkg) [ "bws" ];
+
+  # ----------------------------------------------------------------
+  # Step 2: Home Manager — the UNCHANGED home.nix from the repo root.
+  # ----------------------------------------------------------------
+  # This is the payoff of the user/host threading: on NixOS the same module
+  # attaches via home-manager.users.<name> + extraSpecialArgs, no edits.
+  # useGlobalPkgs: one pkgs set (NixOS's) for system + home — the NixOS-way
+  # replacement for the apt/HM split. backupFileExtension: the guest's
+  # $HOME starts empty, but keep activations non-destructive anyway.
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+  home-manager.backupFileExtension = "hm-backup";
+  home-manager.extraSpecialArgs = { username = "stefano"; host = { }; };
+  home-manager.users.stefano.imports = [ ../home.nix ];
 
   # Matches the hm repo's pin generation; NixOS warns on stateVersion drift.
   system.stateVersion = "25.05";
