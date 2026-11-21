@@ -293,7 +293,11 @@ run `just verify-i3` after your first i3 login. The commands live in the
   found under `$XDG_DATA_HOME`. If QTerminal ever launches with a white
   background after a rebuild, this is why.
 - **Secrets & keys**: `pass` on GnuPG — `programs.password-store.enable` +
-  `programs.gpg.enable`; the store lives at `~/.password-store` (git-backed).
+  `programs.gpg.enable`; the store lives at
+  `~/.local/share/password-store` (pinned machine-wide via
+  `home.sessionVariables.PASSWORD_STORE_DIR` — without it `pass` defaults
+  to `~/.password-store`, a retired legacy copy), git-backed with an
+  offsite mirror on `mini`.
   `services.gpg-agent` caches the key passphrase for 24 h and prompts via
   `pinentry-tty`: HM's agent unit ships no pinentry on PATH, so `extraConfig`
   pins `pinentry-program` explicitly (the curses dialog dies with "Screen or

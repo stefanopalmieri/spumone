@@ -377,8 +377,16 @@
   # ----------------------------------------------------------------
   # Secrets & keys: pass (password store) on GnuPG
   # ----------------------------------------------------------------
+  # Canonical store under XDG data (next to the gpg backup in
+  # ~/.local/share/), NOT the ~/.password-store default: without this
+  # variable `pass` reads the legacy store and silently misses everything
+  # that only lives here (bws/access-token). The store is git-backed with
+  # an offsite mirror on mini.
+  home.sessionVariables.PASSWORD_STORE_DIR =
+    "${config.home.homeDirectory}/.local/share/password-store";
+
   # pass is the CLI password manager: each secret is an encrypted file in
-  # ~/.password-store, the store itself is a git repo, and everything is
+  # the store above, the store itself is a git repo, and everything is
   # driven from the terminal (see `pass --help`). GnuPG agent caches the
   # key passphrase in the session; pinentry-curses prompts in the tty.
   programs.password-store.enable = true;
