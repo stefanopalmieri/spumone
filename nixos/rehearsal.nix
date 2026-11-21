@@ -28,8 +28,8 @@
   networking.hostName = "rehearsal";
   time.timeZone = "America/Chicago";
 
-    # The rehearsal user mirrors the real one (home-manager wires into this
-    # same attrset in a later step via users.users.<name>).
+  # The rehearsal user mirrors the real one (home-manager wires into this
+  # same attrset in a later step via users.users.<name>).
   users.users.stefano = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
