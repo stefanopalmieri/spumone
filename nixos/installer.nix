@@ -14,7 +14,7 @@
 #   closure-baked ISO is a documented non-goal for now (MIGRATION.md).
 # - The partitioning tools the runbook names-checks with live here, so the
 #   "tool missing" failure mode is designed out.
-{ modulesPath, pkgs, self, ... }:
+{ modulesPath, lib, pkgs, self, config, ... }:
 
 {
   imports = [
@@ -22,6 +22,38 @@
   ];
 
   networking.hostName = "lenovo-installer";
+
+  # ----------------------------------------------------------------
+  # Dress code: spumone, not stock NixOS grey.
+  # ----------------------------------------------------------------
+  # ISO naming — the file is spumone-installer-*.iso, volume label
+  # SPUMONE_INSTALL (the module asserts <= 32 chars and self-consistency).
+  # mkForce: the cd-dvd profile also pins baseName to nixos-minimal-*.
+  isoImage.isoBaseName = lib.mkForce "spumone-installer";
+  isoImage.volumeID = "SPUMONE_INSTALL";
+
+  # Login banner, spumone-branded. Replaces the stock <<< Welcome to NixOS
+  # >>> line; the helpLine (empty passwords / ssh notes) from
+  # installation-device stays. Deliberately NOT ANSI-colored: agetty issue
+  # rendering of embedded escapes proved unreliable over serial, and the
+  # theme lives where it's always visible — the starship prompt below.
+  services.getty.greetingLine =
+    "<<< spumone space program — cutover installer >>> NixOS ${config.system.nixos.label} — repo /iso/nixos-config — runbook MIGRATION.md";
+
+  # The spumone prompt, on the installer too: the repo's starship theme,
+  # pointed at via STARSHIP_CONFIG and wired into interactive bash. Starship
+  # itself lives in the tooling list below.
+  environment.etc."starship.toml".text = builtins.readFile ../starship.toml;
+  environment.variables.STARSHIP_CONFIG = "/etc/starship.toml";
+  programs.bash = {
+    enable = true;
+    interactiveShellInit = ''
+      if [[ $- == *i* ]]; then
+        eval "$(${pkgs.starship}/bin/starship init bash)"
+      fi
+    '';
+  };
+
   # Serial console last: kernel+systemd output AND a getty land on ttyS0,
   # so the image is scriptable/recoverable headless (-nographic) — the
   # VGA console stays primary for the normal cutover.
@@ -38,6 +70,7 @@
     vim
     gptfdisk
     cryptsetup
+    starship # the installer wears the spumone prompt too (see above)
   ];
 
   # The flake itself, frozen into the image.
