@@ -62,25 +62,47 @@ nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-o
 Burn it (device, not partition — `lsblk` twice):
 
 ```bash
-dd if=result/iso/nixos-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
+dd if=result/iso/spumone-installer-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
 The ISO carries this exact commit of the repo at `/iso/nixos-config`
 (read-only). If you committed anything after building, rebuild — the
-image is a snapshot, not a link.
+image is a snapshot, not a link. It is the **graphical** image: GNOME
+Calamares installer, spumone-dark, ~3 GB — the USB wants ≥ 4 GB free.
 
 ## 3. Boot it
 
-`F12`/one-time boot menu → the USB (UEF). Land at the installer's
-`nixos` auto-login. Plug ethernet, or for wifi:
-
-```bash
-wpass=$(printf 'passphrase'); printf 'network={ssid="SSID"\npsk="%s"}' "$wpass" > /tmp/wpa
-wpa_supplicant -B -i wlan0 -c <(wpa_passphrase SSID 'the-passphrase')
-# dhcpcd runs via the image's network config; check `ip a`
-```
+`F12`/one-time boot menu → the USB (UEFI). GNOME autologins `nixos`
+(spumone wallpaper, dark); a getty also lives on the serial console for
+rescue. Plug ethernet, or connect wifi via the GNOME quick settings —
+or in a terminal, `nmcli device wifi connect SSID password '...'`.
 
 Sanity: `ls /iso/nixos-config` (the repo), `nix --version`, `lsblk`.
+
+### Two roads from here
+
+**Path A — reproducible CLI (recommended; keeps the LUKS-reuse promises).**
+Open a terminal and continue at step 4. Ignore the Calamares window —
+or use its partitioner to *look* at the disk, but partition per 4.1 in
+the terminal.
+
+**Path B — Calamares menus (gentle, vanilla-first).** Launch
+`Install NixOS` (calamares): timezone, keyboard, user — set name
+`stefano`, hostname `lenovo` — and partitioning. Choose **Erase disk**
+or manual; either way Calamares owns the layout, so the "keep the LUKS
+container" promise of path A does not apply — decide BEFORE it writes.
+After it finishes and reboots you have vanilla NixOS; converge it:
+
+```bash
+# on the installed system, from a copy of the repo (USB or git clone):
+sudo nixos-rebuild switch --flake ./#lenovo
+```
+
+Calamares writes its own `/etc/nixos/hardware-configuration.nix` for the
+layout it chose — replace `nixos/lenovo-hardware.nix` with it (adjusting
+the import if paths differ), `git add` + commit, rebuild again. Until
+that converges, expect the first switch to touch users/groups (path B's
+price). When in doubt: path A; it is five commands and a passphrase.
 
 ## 4. The cutover
 
