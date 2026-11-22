@@ -4,10 +4,10 @@
 # and burned with dd (MIGRATION.md step 3). Boot it, follow MIGRATION.md.
 #
 # Design notes:
-# - The repo rides inside the ISO at /nixos-config (a read-only store copy
-#   via isoImage.contents, sourced from the flake itself), so the machine
-#   being installed can ALWAYS see the exact committed config — no clone,
-#   no "which revision is this?".
+# - The repo rides inside the ISO at /iso/nixos-config (a read-only store
+#   copy via isoImage.contents — the ISO mounts at /iso, hence the prefix),
+#   sourced from the flake itself, so the machine being installed can
+#   ALWAYS see the exact committed config — no clone, no "which revision?".
 # - Network is still required during nixos-install for the hm/nixpkgs
 #   flake inputs and package substitutes; ethernet preferred, else
 #   `wpa_passphrase` + this image's wpa_supplicant. A fully offline
@@ -22,6 +22,10 @@
   ];
 
   networking.hostName = "lenovo-installer";
+  # Serial console last: kernel+systemd output AND a getty land on ttyS0,
+  # so the image is scriptable/recoverable headless (-nographic) — the
+  # VGA console stays primary for the normal cutover.
+  boot.kernelParams = [ "console=tty0" "console=ttyS0,115200n8" ];
   # The installation image ships wpa_supplicant config-less; enable the
   # service so `wpa_cli` can drive it. Ethernet needs nothing.
   networking.wireless.enable = true;

@@ -65,7 +65,7 @@ Burn it (device, not partition — `lsblk` twice):
 dd if=result/iso/nixos-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-The ISO carries this exact commit of the repo at `/nixos-config`
+The ISO carries this exact commit of the repo at `/iso/nixos-config`
 (read-only). If you committed anything after building, rebuild — the
 image is a snapshot, not a link.
 
@@ -80,7 +80,7 @@ wpa_supplicant -B -i wlan0 -c <(wpa_passphrase SSID 'the-passphrase')
 # dhcpcd runs via the image's network config; check `ip a`
 ```
 
-Sanity: `ls /nixos-config` (the repo), `nix --version`, `lsblk`.
+Sanity: `ls /iso/nixos-config` (the repo), `nix --version`, `lsblk`.
 
 ## 4. The cutover
 
@@ -105,7 +105,7 @@ mkdir /mnt/boot && mount /dev/disk/by-partlabel/esp /mnt/boot
 **4.3 — Install:**
 
 ```bash
-nixos-install --flake /nixos-config#lenovo --no-root-password
+nixos-install --flake /iso/nixos-config#lenovo --no-root-password
 ```
 
 (No root password: sudo-only box, mirroring the README's Debian advice.)
