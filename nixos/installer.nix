@@ -28,6 +28,24 @@
 
   networking.hostName = "lenovo-installer";
 
+  # Calamares chrome in spumone purple: the sidebar palette lives in the
+  # branding.desc style block (stock: blue #5277C3 / #7EBAE4). Overlay the
+  # extensions package and re-dye it — Spacemacs bg purple #5d4d7a, a
+  # lightened variant for the current step, white text on it; body text is
+  # the theme's #b2b2b2. An overlay, because the cd module hardcodes
+  # pkgs.calamares-nixos-extensions — there is no option for the branding.
+  nixpkgs.overlays = [
+    (final: prev: {
+      calamares-nixos-extensions =
+        prev.calamares-nixos-extensions.overrideAttrs (old: {
+          postInstall = (old.postInstall or "") + ''
+            sed -i 's/#5277C3/#5D4D7A/g; s/#7EBAE4/#84719F/g; s/#292F34/#FFFFFF/g' \
+              "$out/share/calamares/branding/nixos/branding.desc"
+          '';
+        });
+    })
+  ];
+
   # ----------------------------------------------------------------
   # Dress code: spumone, not stock NixOS grey.
   # ----------------------------------------------------------------
@@ -57,6 +75,7 @@
     [org.gnome.desktop.interface]
     color-scheme='prefer-dark'
     gtk-theme='Adwaita-dark'
+    accent-color='purple'
     [org.gnome.desktop.background]
     picture-uri='file:///etc/spumone-wallpaper.png'
     picture-uri-dark='file:///etc/spumone-wallpaper.png'

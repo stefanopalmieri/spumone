@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- popsicle rocket on ascent -->
+  <path d="M57 79 C53 88 57 96 64 101 C71 96 75 88 71 79 Z" fill="#d9a05b"/>
+  <path d="M60 81 C58 87 60 92 64 95 C68 92 70 87 68 81 Z" fill="#4f97d7"/>
+  <path d="M50 58 L34 80 L50 74 Z" fill="#5d4d7a"/>
+  <path d="M78 58 L94 80 L78 74 Z" fill="#5d4d7a"/>
+  <rect x="50" y="34" width="28" height="46" rx="7" fill="#4f97d7"/>
+  <path d="M50 38 Q64 14 78 38 Z" fill="#bc6ec5"/>
+  <circle cx="64" cy="52" r="6.5" fill="#bc6ec5" stroke="#f2e9dc" stroke-width="2"/>
+  <path d="M26 22 l2 4.2 4.2 2 -4.2 2 -2 4.2 -2 -4.2 -4.2 -2 4.2 -2 Z" fill="#f2e9dc"/>
+  <circle cx="104" cy="44" r="1.7" fill="#bc6ec5"/>
+</svg>

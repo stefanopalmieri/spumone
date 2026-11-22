@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- neapolitan ice cream sandwich: chocolate wafers, side-by-side spumoni stripes -->
+  <rect x="16" y="36" width="96" height="12" rx="4" fill="#a97845"/>
+  <g fill="#7d5a33">
+    <circle cx="26" cy="40.5" r="1.4"/><circle cx="40" cy="40.5" r="1.4"/><circle cx="54" cy="40.5" r="1.4"/><circle cx="68" cy="40.5" r="1.4"/><circle cx="82" cy="40.5" r="1.4"/><circle cx="96" cy="40.5" r="1.4"/>
+    <circle cx="33" cy="44.5" r="1.4"/><circle cx="47" cy="44.5" r="1.4"/><circle cx="61" cy="44.5" r="1.4"/><circle cx="75" cy="44.5" r="1.4"/><circle cx="89" cy="44.5" r="1.4"/><circle cx="103" cy="44.5" r="1.4"/>
+  </g>
+  <path d="M17 47 H47.3 V81 H17 Q14 81 14 78 V50 Q14 47 17 47 Z" fill="#c26e6e"/>
+  <rect x="47.3" y="47" width="33.4" height="34" fill="#f2e9dc"/>
+  <path d="M80.7 47 H111 Q114 47 114 50 V78 Q114 81 111 81 H80.7 Z" fill="#a3be8c"/>
+  <rect x="16" y="80" width="96" height="10" rx="4" fill="#a97845"/>
+  <path d="M22 24 l2 4.2 4.2 2 -4.2 2 -2 4.2 -2 -4.2 -4.2 -2 4.2 -2 Z" fill="#f2e9dc"/>
+  <circle cx="106" cy="26" r="1.8" fill="#4f97d7"/>
+  <circle cx="112" cy="100" r="1.6" fill="#bc6ec5"/>
+  <circle cx="14" cy="102" r="1.4" fill="#4f97d7"/>
+</svg>

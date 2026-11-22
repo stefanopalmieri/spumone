@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- gelato planet with a wafer ring, cherry moon, sprinkles as stars -->
+  <g transform="rotate(-18 64 64)">
+    <ellipse cx="64" cy="64" rx="42" ry="12" fill="none" stroke="#d9a05b" stroke-width="4.5"/>
+  </g>
+  <circle cx="64" cy="62" r="22" fill="#bc6ec5"/>
+  <g transform="rotate(-18 64 64)">
+    <path d="M22 64 A42 12 0 0 0 106 64" fill="none" stroke="#d9a05b" stroke-width="4.5"/>
+  </g>
+  <rect x="54" y="52" width="6" height="2.4" rx="1.2" fill="#f2e9dc" transform="rotate(30 57 53)"/>
+  <rect x="66" y="62" width="6" height="2.4" rx="1.2" fill="#4f97d7" transform="rotate(-25 69 63)"/>
+  <rect x="56" y="70" width="6" height="2.4" rx="1.2" fill="#a3be8c" transform="rotate(65 59 71)"/>
+  <circle cx="94" cy="31" r="7.5" fill="#c26e6e"/>
+  <path d="M94 23.5 q1 -4 4 -5" stroke="#a97845" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M24 92 l2.4 5 5 2.4 -5 2.4 -2.4 5 -2.4 -5 -5 -2.4 5 -2.4 Z" fill="#f2e9dc"/>
+  <circle cx="108" cy="98" r="1.8" fill="#4f97d7"/>
+</svg>

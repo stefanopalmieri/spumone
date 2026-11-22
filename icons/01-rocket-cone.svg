@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- gelato-cone rocket: scoop nose cone, waffle body, fins, flame -->
+  <path d="M64 92 C56 99 55 108 64 118 C73 108 72 99 64 92 Z" fill="#d9a05b"/>
+  <path d="M64 96 C60 101 59.5 107 64 113 C68.5 107 68 101 64 96 Z" fill="#4f97d7"/>
+  <path d="M47 56 C33 63 28 78 31 90 L47 76 Z" fill="#5d4d7a"/>
+  <path d="M81 56 C95 63 100 78 97 90 L81 76 Z" fill="#5d4d7a"/>
+  <path d="M44 48 L84 48 L64 92 Z" fill="#d9a05b" stroke="#a97845" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M49 54 L68 79 M79 54 L60 79 M54 49 L74 74 M74 49 L54 74" stroke="#a97845" stroke-width="1.6" fill="none"/>
+  <circle cx="64" cy="34" r="18" fill="#bc6ec5"/>
+  <rect x="54" y="28" width="6" height="2.4" rx="1.2" fill="#f2e9dc" transform="rotate(24 57 29)"/>
+  <rect x="66" y="38" width="6" height="2.4" rx="1.2" fill="#4f97d7" transform="rotate(-30 69 39)"/>
+  <rect x="58" y="42" width="6" height="2.4" rx="1.2" fill="#f2e9dc" transform="rotate(70 61 43)"/>
+</svg>

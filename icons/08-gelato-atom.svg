@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- the gelato atom: a cone nucleus with flavor satellites in orbit -->
+  <ellipse cx="64" cy="62" rx="46" ry="17" fill="none" stroke="#5d4d7a" stroke-width="2.5" transform="rotate(24 64 62)"/>
+  <ellipse cx="64" cy="62" rx="46" ry="17" fill="none" stroke="#5d4d7a" stroke-width="2.5" transform="rotate(-24 64 62)"/>
+  <circle cx="22" cy="43" r="6" fill="#a3be8c"/>
+  <circle cx="106" cy="81" r="6" fill="#c26e6e"/>
+  <circle cx="99" cy="36" r="6" fill="#4f97d7"/>
+  <circle cx="64" cy="54" r="12" fill="#bc6ec5"/>
+  <path d="M54 62 L74 62 L64 84 Z" fill="#d9a05b" stroke="#a97845" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="64" cy="39" r="3.5" fill="#c26e6e"/>
+  <circle cx="30" cy="100" r="1.6" fill="#f2e9dc"/>
+  <circle cx="100" cy="104" r="1.6" fill="#f2e9dc"/>
+</svg>

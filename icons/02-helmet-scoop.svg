@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- astronaut helmet; a tiny gelato cone reflected in the visor -->
+  <line x1="64" y1="26" x2="64" y2="13" stroke="#5d4d7a" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="64" cy="10" r="4" fill="#4f97d7"/>
+  <circle cx="64" cy="68" r="42" fill="none" stroke="#5d4d7a" stroke-width="8"/>
+  <circle cx="64" cy="68" r="42" fill="none" stroke="#4f97d7" stroke-width="2"/>
+  <rect x="36" y="50" width="56" height="38" rx="19" fill="#292b2e" stroke="#4f97d7" stroke-width="2.5"/>
+  <circle cx="63" cy="60" r="6" fill="#bc6ec5"/>
+  <path d="M57 63 L69 63 L63 76 Z" fill="#d9a05b"/>
+  <circle cx="47" cy="58" r="1.6" fill="#f2e9dc"/>
+  <circle cx="80" cy="70" r="1.6" fill="#f2e9dc"/>
+  <circle cx="78" cy="56" r="1.1" fill="#bc6ec5"/>
+  <circle cx="21" cy="68" r="5.5" fill="#4f97d7"/>
+  <circle cx="107" cy="68" r="5.5" fill="#4f97d7"/>
+  <path d="M44 96 Q64 108 84 96" stroke="#5d4d7a" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- astronaut ice-cream bar, adrift among the stars -->
+  <g transform="rotate(-14 64 64)">
+    <rect x="57" y="88" width="9" height="16" rx="3.5" fill="#d9a05b"/>
+    <rect x="45" y="38" width="33" height="52" rx="15" fill="#f2e9dc" stroke="#ddd2bf" stroke-width="1.5"/>
+    <path d="M48 54 q7 6 14 0 t13 0" stroke="#bc6ec5" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M48 66 q7 6 14 0 t13 0" stroke="#4f97d7" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="56" cy="47" r="1.6" fill="#c26e6e"/>
+    <circle cx="70" cy="78" r="1.6" fill="#a3be8c"/>
+  </g>
+  <path d="M24 36 l2.4 5 5 2.4 -5 2.4 -2.4 5 -2.4 -5 -5 -2.4 5 -2.4 Z" fill="#f2e9dc"/>
+  <circle cx="102" cy="26" r="1.8" fill="#4f97d7"/>
+  <circle cx="30" cy="96" r="1.6" fill="#bc6ec5"/>
+  <path d="M100 96 l1.8 3.8 3.8 1.8 -3.8 1.8 -1.8 3.8 -1.8 -3.8 -3.8 -1.8 3.8 -1.8 Z" fill="#f2e9dc"/>
+</svg>
