@@ -55,8 +55,8 @@ gpg --armor --export-secret-keys 3F580ECC39327F45 \
 
 ```bash
 cd ~/.config/home-manager
-nix build .#nixosConfigurations.installer.config.system.build.isoImage --no-link --print-out-paths
-# → /nix/store/...-nixos-minimal-...iso  (also under result/iso/)
+nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-out-paths
+# → result/iso/nixos-minimal-....iso  (store path also printed)
 ```
 
 Burn it (device, not partition — `lsblk` twice):
