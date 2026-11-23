@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- neapolitan sandwich in three-quarter view: dot-grid wafer top, side-by-side stripes, green end cap -->
+  <polygon points="24,52 96,52 108,40 36,40" fill="#a97845"/>
+  <g fill="#7d5a33">
+    <circle cx="42" cy="44" r="1.4"/><circle cx="54" cy="44" r="1.4"/><circle cx="66" cy="44" r="1.4"/><circle cx="78" cy="44" r="1.4"/><circle cx="90" cy="44" r="1.4"/><circle cx="100" cy="44" r="1.4"/>
+    <circle cx="36" cy="48" r="1.4"/><circle cx="48" cy="48" r="1.4"/><circle cx="60" cy="48" r="1.4"/><circle cx="72" cy="48" r="1.4"/><circle cx="84" cy="48" r="1.4"/><circle cx="94" cy="48" r="1.4"/>
+  </g>
+  <rect x="24" y="52" width="72" height="5" fill="#a97845"/>
+  <rect x="24" y="57" width="24" height="21" fill="#c26e6e"/>
+  <rect x="48" y="57" width="24" height="21" fill="#f2e9dc"/>
+  <rect x="72" y="57" width="24" height="21" fill="#a3be8c"/>
+  <rect x="24" y="78" width="72" height="4" fill="#a97845"/>
+  <polygon points="96,52 108,40 108,45 96,57" fill="#a97845"/>
+  <polygon points="96,57 108,45 108,70 96,82" fill="#a3be8c"/>
+  <polygon points="96,78 108,66 108,70 96,82" fill="#a97845"/>
+  <path d="M24 100 l2 4.2 4.2 2 -4.2 2 -2 4.2 -2 -4.2 -4.2 -2 4.2 -2 Z" fill="#f2e9dc"/>
+  <circle cx="114" cy="24" r="1.8" fill="#4f97d7"/>
+  <circle cx="18" cy="30" r="1.5" fill="#bc6ec5"/>
+</svg>

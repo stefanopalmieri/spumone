@@ -41,6 +41,17 @@
           postInstall = (old.postInstall or "") + ''
             sed -i 's/#5277C3/#5D4D7A/g; s/#7EBAE4/#84719F/g; s/#292F34/#FFFFFF/g' \
               "$out/share/calamares/branding/nixos/branding.desc"
+            # The official spumone mark (the ice-cream-sandwich ISO) replaces
+            # the snowflake in every branding slot: window icon, sidebar
+            # logo, welcome page. Readable on the purple sidebar — the cream
+            # and pink panels carry the silhouette.
+            cp ${./spumone-icon.svg} \
+              "$out/share/calamares/branding/nixos/spumone-icon.svg"
+            sed -i \
+              's|productIcon:\( *\)"nix-snowflake.svg"|productIcon:\1"spumone-icon.svg"|;
+               s|productLogo:\( *\)"white.png"|productLogo:\1"spumone-icon.svg"|;
+               s|productWelcome:\( *\)"nix-snowflake.svg"|productWelcome:\1"spumone-icon.svg"|' \
+              "$out/share/calamares/branding/nixos/branding.desc"
           '';
         });
     })
