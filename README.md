@@ -311,8 +311,6 @@ run `just verify-i3` after your first i3 login. The commands live in the
 ### Development
 - **direnv** — load per-project environment variables automatically. Great
   for nix-shell or per-project tool versions. `programs.direnv.enable = true;`
-- **fzf** — fuzzy finder, integrates with bash/emacs.
-  `programs.fzf.enable = true;`
 - **zoxide** — smarter `cd` command that learns your habits.
   `programs.zoxide.enable = true;`
 - **lazygit** — terminal UI for git. `programs.lazygit.enable = true;`
