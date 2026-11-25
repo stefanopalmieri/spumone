@@ -64,11 +64,24 @@
     zsh
     starship
 
+    # Ghostty — GPU-rendered terminal, kept as an optional extra (issue #1):
+    # NOT the default until it's eyeballed on this Haswell HD 4400 (GL 3.3+
+    # needed; Mesa iris covers it on paper). Default stays emacs vterm via
+    # Mod+Return; launch `ghostty` from rofi/run to evaluate it.
+    ghostty
+
     # Node (needed for pi)
     nodejs
 
     # Nerd Font (for starship powerline glyphs)
     pkgs.nerd-fonts.sauce-code-pro
+
+    # Cloud / remote-sync CLI toolbox (issue #1: daily drivers on the
+    # other machine that this config didn't declare yet).
+    awscli2   # AWS CLI v2 (s3, sts, ...) — note: v2, not the legacy `awscli`
+    rclone    # rsync-style sync to cloud backends
+    rsync     # local/remote file sync
+    sshpass   # non-interactive ssh password auth for scripts
 
     # Misc utilities
     htop
@@ -290,6 +303,21 @@
     withRuby = false;
     withPython3 = false;
   };
+
+  # ----------------------------------------------------------------
+  # GitHub CLI + git credential helper (issue #1)
+  # ----------------------------------------------------------------
+  # gh is also the credential helper for HTTPS github.com/gist remotes:
+  # programs.gh.gitCredentialHelper (on by default) injects
+  # `gh auth git-credential` into programs.git.settings, and enabling
+  # programs.git is what renders ~/.gitconfig. Declaring the helper here
+  # too would collide with gh's list-typed definition. SSH remotes (the
+  # norm in this setup) keep the plain ed25519 key.
+  programs.gh.enable = true;
+  programs.git.enable = true;
+
+  # Fuzzy finder (README "Extra scoops" alumnus) with zsh integration.
+  programs.fzf.enable = true;
 
 
   # Nerd Fonts are installed via home.packages; enabling fontconfig here makes
